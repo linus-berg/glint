@@ -38,12 +38,44 @@ Once the image opens, you can use the keyboard shortcuts to annotate, and when y
 | `R` | Rectangle |
 | `E` | Ellipse |
 | `T` | Text |
+| `S` | Numbered Steps |
 | `B` | Blur |
+| `X` | Redaction (Pixelate) |
+| `M` | Loupe (Zoom/Magnify) |
 | `Ctrl+Z` / `⌘Z` | Undo |
 | `Ctrl+Shift+Z` / `⌘⇧Z` | Redo |
-| `Ctrl+C` / `⌘C` | Copy image to clipboard & exit |
+| `Ctrl+C` / `⌘C` | Copy image to clipboard |
+| `Ctrl+S` / `⌘S` | Quick Save (to Desktop or configured `save_dir`) |
+| `Ctrl+Shift+S` / `⌘⇧S` | Save As... |
 | `Ctrl+O` / `⌘O` | Open image file from disk |
 | `Esc` | Close application / Cancel text input |
+
+## Configuration
+
+Glint creates a default configuration file on first launch. It is located at `~/.config/glint/config.toml` (or `$XDG_CONFIG_HOME/glint/config.toml`).
+
+You can customize your default tool, color, stroke width, save directory, and even define a custom color palette!
+
+```toml
+# Glint Configuration File
+
+# Directory to save quick screenshots
+# Can use ~/ for home directory
+save_dir = "~/Desktop"
+
+# Default selected tool on startup
+# Options: Freehand, Arrow, Rectangle, Ellipse, Highlighter, Text, Step, Blur, Redaction, Loupe
+default_tool = "Freehand"
+
+# Default color index (0-7)
+default_color_index = 0
+
+# Default stroke width index (0-3)
+default_stroke_index = 1
+
+# Optional custom 8-color palette (hex codes). Uncomment to use!
+# palette = ["#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#007AFF", "#AF52DE", "#FFFFFF", "#000000"]
+```
 
 ## Installation
 

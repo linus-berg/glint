@@ -19,6 +19,7 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
+        ConfigService.LoadConfig();
         Editor = new EditorViewModel();
     }
 
@@ -73,10 +74,11 @@ public partial class MainViewModel : ViewModelBase
 
         var composite = ImageExportService.Composite(Editor.Screenshot, Editor.Annotations.ToList());
         
-        // Default save location
-        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var saveDir = ConfigService.Current.SaveDir;
+        if (!Directory.Exists(saveDir)) Directory.CreateDirectory(saveDir);
+        
         var fileName = $"Glint_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-        var filePath = Path.Combine(desktopPath, fileName);
+        var filePath = Path.Combine(saveDir, fileName);
 
         await ImageExportService.SaveAsync(composite, filePath);
         Editor.StatusText = $"Saved to {filePath}";

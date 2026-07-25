@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Glint.Models;
+using Glint.Services;
 using SkiaSharp;
 
 namespace Glint.ViewModels;
@@ -73,6 +74,26 @@ public partial class EditorViewModel : ViewModelBase
 
     public EditorViewModel()
     {
+        if (ConfigService.Current.Palette != null)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                if (SKColor.TryParse(ConfigService.Current.Palette[i], out var c))
+                    PresetColors[i] = c;
+            }
+        }
+
+        if (Enum.TryParse<ToolType>(ConfigService.Current.DefaultTool, true, out var t))
+            CurrentTool = t;
+
+        SelectedColorIndex = ConfigService.Current.DefaultColorIndex;
+        if (SelectedColorIndex >= 0 && SelectedColorIndex < PresetColors.Length)
+            CurrentColor = PresetColors[SelectedColorIndex];
+
+        SelectedStrokeIndex = ConfigService.Current.DefaultStrokeIndex;
+        if (SelectedStrokeIndex >= 0 && SelectedStrokeIndex < PresetStrokes.Length)
+            CurrentStrokeWidth = PresetStrokes[SelectedStrokeIndex];
+
         UndoRedo.StateChanged += () =>
         {
             CanUndo = UndoRedo.CanUndo;
