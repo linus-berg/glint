@@ -124,11 +124,6 @@ public partial class MainWindow : Window
                 _viewModel.Editor.SelectToolCommand.Execute("Ellipse");
                 e.Handled = true;
             }
-            else if (e.Key == Key.V)
-            {
-                _viewModel.Editor.SelectToolCommand.Execute("Select");
-                e.Handled = true;
-            }
         }
         else if (e.Key == Key.Escape)
         {

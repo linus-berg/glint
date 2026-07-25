@@ -259,9 +259,6 @@ public class AnnotationCanvas : Control
             case ToolType.Text:
                 StartOrEditText(imgPos);
                 break;
-            case ToolType.Select:
-                // Could implement selection/move logic here
-                break;
         }
 
         e.Handled = true;

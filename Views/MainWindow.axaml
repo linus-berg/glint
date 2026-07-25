@@ -191,13 +191,6 @@
             <!-- Right Toolbar -->
             <Border Grid.Column="1" Background="#181818" Padding="4" BorderBrush="#333333" BorderThickness="1,0,0,0">
                 <StackPanel Orientation="Vertical" Spacing="2">
-                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsSelect}}"
-                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Select" ToolTip.Tip="Select (V)" HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="🔍" />
-                            <TextBlock Text="Select" />
-                        </StackPanel>
-                    </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsFreehand}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Freehand" ToolTip.Tip="Draw (D)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">

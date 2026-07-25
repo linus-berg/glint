@@ -10,7 +10,6 @@ namespace Glint.Controls;
 /// </summary>
 public static class ToolTypeConverters
 {
-    public static readonly IValueConverter IsSelect = new ToolTypeConverter(ToolType.Select);
     public static readonly IValueConverter IsFreehand = new ToolTypeConverter(ToolType.Freehand);
     public static readonly IValueConverter IsArrow = new ToolTypeConverter(ToolType.Arrow);
     public static readonly IValueConverter IsText = new ToolTypeConverter(ToolType.Text);
