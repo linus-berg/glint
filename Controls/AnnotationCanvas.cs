@@ -476,7 +476,8 @@ public class AnnotationCanvas : Control
             Start = pos,
             End = pos,
             Color = _editor!.CurrentColor,
-            StrokeWidth = _editor.CurrentStrokeWidth
+            StrokeWidth = _editor.CurrentStrokeWidth,
+            IsFilled = _editor.IsFillEnabled
         };
         _isDrawing = true;
     }
@@ -488,7 +489,8 @@ public class AnnotationCanvas : Control
             Start = pos,
             End = pos,
             Color = _editor!.CurrentColor,
-            StrokeWidth = _editor.CurrentStrokeWidth
+            StrokeWidth = _editor.CurrentStrokeWidth,
+            IsFilled = _editor.IsFillEnabled
         };
         _isDrawing = true;
     }

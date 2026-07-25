@@ -154,6 +154,11 @@ public partial class MainWindow : Window
                 _viewModel.Editor.SelectToolCommand.Execute("Crop");
                 e.Handled = true;
             }
+            else if (e.Key == Key.F)
+            {
+                _viewModel.Editor.ToggleFillCommand.Execute(null);
+                e.Handled = true;
+            }
         }
         else if (e.Key == Key.Escape)
         {

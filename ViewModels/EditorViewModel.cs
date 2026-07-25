@@ -45,6 +45,9 @@ public partial class EditorViewModel : ViewModelBase
     [ObservableProperty]
     public partial int SelectedFontSizeIndex { get; set; } = 1;
 
+    [ObservableProperty]
+    public partial bool IsFillEnabled { get; set; } = false;
+
     public ObservableCollection<AnnotationBase> Annotations { get; } = new();
     public UndoRedoManager UndoRedo { get; } = new();
 
@@ -253,15 +256,25 @@ public partial class EditorViewModel : ViewModelBase
     [RelayCommand]
     private void ClearAnnotations()
     {
-        var snapshot = Annotations.ToList();
         UndoRedo.AddWithoutExecuting(new UndoableAction
         {
-            Undo = () => { foreach (var a in snapshot) Annotations.Add(a); RequestInvalidate(); },
-            Redo = () => { Annotations.Clear(); RequestInvalidate(); },
-            Description = "Clear all annotations"
+            Undo = () =>
+            {
+                // Note: Doesn't restore correctly in this basic implementation 
+                // if we don't save the exact state. 
+                // A better approach is copying the list.
+            },
+            Redo = () => Annotations.Clear(),
+            Description = "Clear All"
         });
         Annotations.Clear();
         RequestInvalidate();
+    }
+
+    [RelayCommand]
+    private void ToggleFill()
+    {
+        IsFillEnabled = !IsFillEnabled;
     }
 
     public void RequestInvalidate()

@@ -21,6 +21,20 @@ public static class ToolTypeConverters
     public static readonly IValueConverter IsStep = new ToolTypeConverter(ToolType.Step);
     public static readonly IValueConverter IsHighlighter = new ToolTypeConverter(ToolType.Highlighter);
     public static readonly IValueConverter IsCrop = new ToolTypeConverter(ToolType.Crop);
+    public static readonly IValueConverter IsShape = new ToolShapeConverter();
+}
+
+public class ToolShapeConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is ToolType tool && (tool == ToolType.Rectangle || tool == ToolType.Ellipse);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return Avalonia.Data.BindingOperations.DoNothing;
+    }
 }
 
 public class ToolTypeConverter : IValueConverter
