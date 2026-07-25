@@ -167,40 +167,37 @@ public class AnnotationCanvas : Control
             // Draw screenshot
             canvas.Clear(SKColors.Transparent);
 
-            // Create a copy for blur rendering
+            // Create a copy for layer rendering
             using var workBitmap = screenshot.Copy();
+            using var workCanvas = new SKCanvas(workBitmap);
 
-            // Apply blur annotations to the working copy
+            // Apply all committed annotations in chronological order
             foreach (var annotation in _editor.Annotations)
             {
                 if (annotation is BlurAnnotation blur)
                 {
                     blur.ApplyBlur(workBitmap);
                 }
+                else
+                {
+                    annotation.Render(workCanvas);
+                }
             }
 
+            // Apply live blur effect if currently dragging a blur
             if (_currentAnnotation is BlurAnnotation currentBlur)
             {
                 currentBlur.ApplyBlur(workBitmap);
             }
 
-            // Draw the (potentially blurred) screenshot
+            // Draw the fully composited layered image to the screen
             canvas.DrawBitmap(workBitmap, 0, 0);
 
-            // Draw non-blur annotations
-            foreach (var annotation in _editor.Annotations)
+            // Draw the live annotation (stroke, shape, or blur UI guide) on top
+            if (_currentAnnotation != null)
             {
-                if (annotation is not BlurAnnotation)
-                {
-                    annotation.Render(canvas);
-                }
+                _currentAnnotation.Render(canvas);
             }
-
-            // Blur outlines removed for cleaner look
-
-            // Draw current in-progress annotation
-            _currentAnnotation?.Render(canvas);
-            
             // Draw active text annotation
             _activeTextAnnotation?.Render(canvas);
 
