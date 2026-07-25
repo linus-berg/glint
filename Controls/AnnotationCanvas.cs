@@ -178,6 +178,10 @@ public class AnnotationCanvas : Control
                 {
                     blur.ApplyBlur(workBitmap);
                 }
+                else if (annotation is LoupeAnnotation loupe)
+                {
+                    loupe.ApplyLoupe(workBitmap);
+                }
                 else
                 {
                     annotation.Render(workCanvas);
@@ -188,6 +192,10 @@ public class AnnotationCanvas : Control
             if (_currentAnnotation is BlurAnnotation currentBlur)
             {
                 currentBlur.ApplyBlur(workBitmap);
+            }
+            else if (_currentAnnotation is LoupeAnnotation currentLoupe)
+            {
+                currentLoupe.ApplyLoupe(workBitmap);
             }
 
             // Draw the fully composited layered image to the screen
@@ -262,6 +270,12 @@ public class AnnotationCanvas : Control
             case ToolType.Step:
                 AddStep(imgPos);
                 break;
+            case ToolType.Redaction:
+                StartRedaction(imgPos);
+                break;
+            case ToolType.Loupe:
+                StartLoupe(imgPos);
+                break;
         }
 
         e.Handled = true;
@@ -294,6 +308,15 @@ public class AnnotationCanvas : Control
                 break;
             case BlurAnnotation blur:
                 blur.End = imgPos;
+                InvalidateVisual();
+                break;
+            case RedactionAnnotation redaction:
+                redaction.End = imgPos;
+                InvalidateVisual();
+                break;
+            case LoupeAnnotation loupe:
+                loupe.End = imgPos;
+                InvalidateVisual();
                 break;
             case HighlighterAnnotation highlighter:
                 highlighter.Path.LineTo(imgPos);
@@ -319,7 +342,10 @@ public class AnnotationCanvas : Control
             RectangleAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
             EllipseAnnotation el => Math.Abs(el.End.X - el.Start.X) > 3 && Math.Abs(el.End.Y - el.Start.Y) > 3,
             BlurAnnotation bl => Math.Abs(bl.End.X - bl.Start.X) > 5 && Math.Abs(bl.End.Y - bl.Start.Y) > 5,
+            RedactionAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
+            LoupeAnnotation lo => Math.Abs(lo.End.X - lo.Start.X) > 5 && Math.Abs(lo.End.Y - lo.Start.Y) > 5,
             HighlighterAnnotation hl => !hl.Path.IsEmpty,
+            StepAnnotation => true,
             _ => true
         };
 
@@ -401,6 +427,30 @@ public class AnnotationCanvas : Control
     private void StartEllipse(SKPoint pos)
     {
         _currentAnnotation = new EllipseAnnotation
+        {
+            Start = pos,
+            End = pos,
+            Color = _editor!.CurrentColor,
+            StrokeWidth = _editor.CurrentStrokeWidth
+        };
+        _isDrawing = true;
+    }
+
+    private void StartRedaction(SKPoint pos)
+    {
+        _currentAnnotation = new RedactionAnnotation
+        {
+            Start = pos,
+            End = pos,
+            Color = _editor!.CurrentColor,
+            StrokeWidth = _editor.CurrentStrokeWidth
+        };
+        _isDrawing = true;
+    }
+
+    private void StartLoupe(SKPoint pos)
+    {
+        _currentAnnotation = new LoupeAnnotation
         {
             Start = pos,
             End = pos,

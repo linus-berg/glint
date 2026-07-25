@@ -134,6 +134,16 @@ public partial class MainWindow : Window
                 _viewModel.Editor.SelectToolCommand.Execute("Step");
                 e.Handled = true;
             }
+            else if (e.Key == Key.X)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Redaction");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.M)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Loupe");
+                e.Handled = true;
+            }
         }
         else if (e.Key == Key.Escape)
         {

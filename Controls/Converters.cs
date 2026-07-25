@@ -14,6 +14,8 @@ public static class ToolTypeConverters
     public static readonly IValueConverter IsArrow = new ToolTypeConverter(ToolType.Arrow);
     public static readonly IValueConverter IsText = new ToolTypeConverter(ToolType.Text);
     public static readonly IValueConverter IsBlur = new ToolTypeConverter(ToolType.Blur);
+    public static readonly IValueConverter IsRedaction = new ToolTypeConverter(ToolType.Redaction);
+    public static readonly IValueConverter IsLoupe = new ToolTypeConverter(ToolType.Loupe);
     public static readonly IValueConverter IsRectangle = new ToolTypeConverter(ToolType.Rectangle);
     public static readonly IValueConverter IsEllipse = new ToolTypeConverter(ToolType.Ellipse);
     public static readonly IValueConverter IsStep = new ToolTypeConverter(ToolType.Step);

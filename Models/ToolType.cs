@@ -6,6 +6,8 @@ public enum ToolType
     Arrow,
     Text,
     Blur,
+    Redaction,
+    Loupe,
     Rectangle,
     Ellipse,
     Step,
