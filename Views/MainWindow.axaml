@@ -31,17 +31,61 @@
             <Setter Property="BorderBrush" Value="#333333"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
-        <Style Selector="Button.toolbar-btn:pointerover">
+        <Style Selector="Button.toolbar-btn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#3a3a3a"/>
             <Setter Property="BorderBrush" Value="#555555"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn:pointerover">
             <Setter Property="Foreground" Value="#ffffff"/>
         </Style>
-        <Style Selector="Button.toolbar-btn:pressed">
+        <Style Selector="Button.toolbar-btn:pressed /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#444444"/>
         </Style>
-        <Style Selector="Button.toolbar-btn.active">
+        <Style Selector="Button.toolbar-btn.active /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#005fb8"/>
             <Setter Property="BorderBrush" Value="#0078d4"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn.active">
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn.active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#006cc1"/>
+            <Setter Property="BorderBrush" Value="#0078d4"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn.active:pointerover">
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+
+        <Style Selector="ToggleButton.toolbar-btn">
+            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Foreground" Value="#dddddd"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ToggleButton.toolbar-btn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#3a3a3a"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+        </Style>
+        <Style Selector="ToggleButton.toolbar-btn:pointerover">
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+        <Style Selector="ToggleButton.toolbar-btn:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#005fb8"/>
+            <Setter Property="BorderBrush" Value="#0078d4"/>
+        </Style>
+        <Style Selector="ToggleButton.toolbar-btn:checked">
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+        <Style Selector="ToggleButton.toolbar-btn:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#006cc1"/>
+            <Setter Property="BorderBrush" Value="#0078d4"/>
+        </Style>
+        <Style Selector="ToggleButton.toolbar-btn:checked:pointerover">
             <Setter Property="Foreground" Value="#ffffff"/>
         </Style>
 
