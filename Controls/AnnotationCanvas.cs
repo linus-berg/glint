@@ -29,12 +29,9 @@ public class AnnotationCanvas : Control
     
     public bool IsEditingText => _activeTextAnnotation != null && _activeTextAnnotation.IsEditing;
 
-    // Pan/Zoom state
+    // Zoom state
     private double _zoom = 1.0;
     private Point _offset;
-    private bool _isPanning;
-    private Point _panStart;
-    private Point _panOffsetStart;
 
     public AnnotationCanvas()
     {
@@ -108,7 +105,7 @@ public class AnnotationCanvas : Control
         var ch = Bounds.Height;
         if (cw <= 0 || ch <= 0) return;
 
-        _zoom = Math.Min(cw / bw, ch / bh) * 0.95;
+        _zoom = Math.Min(cw / bw, ch / bh);
         _offset = new Point(
             (cw - bw * _zoom) / 2,
             (ch - bh * _zoom) / 2
@@ -121,7 +118,10 @@ public class AnnotationCanvas : Control
         {
             var w = Math.Min(_editor.Screenshot.Width, availableSize.Width);
             var h = Math.Min(_editor.Screenshot.Height, availableSize.Height);
-            return new Size(w, h);
+            
+            // Preserve aspect ratio when scaling down to available size
+            double scale = Math.Min(w / _editor.Screenshot.Width, h / _editor.Screenshot.Height);
+            return new Size(_editor.Screenshot.Width * scale, _editor.Screenshot.Height * scale);
         }
         return new Size(800, 600);
     }
@@ -176,6 +176,11 @@ public class AnnotationCanvas : Control
                 }
             }
 
+            if (_currentAnnotation is BlurAnnotation currentBlur)
+            {
+                currentBlur.ApplyBlur(workBitmap);
+            }
+
             // Draw the (potentially blurred) screenshot
             canvas.DrawBitmap(workBitmap, 0, 0);
 
@@ -188,14 +193,7 @@ public class AnnotationCanvas : Control
                 }
             }
 
-            // Draw blur annotation outlines (editor-only visual)
-            foreach (var annotation in _editor.Annotations)
-            {
-                if (annotation is BlurAnnotation blurOutline)
-                {
-                    blurOutline.Render(canvas);
-                }
-            }
+            // Blur outlines removed for cleaner look
 
             // Draw current in-progress annotation
             _currentAnnotation?.Render(canvas);
@@ -212,14 +210,7 @@ public class AnnotationCanvas : Control
             width * _zoom, height * _zoom
         );
 
-        // Draw shadow behind the screenshot
-        var shadowRect = new Rect(destRect.X + 4, destRect.Y + 4, destRect.Width, destRect.Height);
-        context.DrawRectangle(new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)), null, shadowRect, 4, 4);
-
         context.DrawImage(_renderTarget, new Rect(0, 0, width, height), destRect);
-
-        // Draw border around the image
-        context.DrawRectangle(null, new Pen(new SolidColorBrush(Color.FromArgb(40, 255, 255, 255)), 1), destRect);
     }
 
     #region Pointer Input
@@ -240,16 +231,6 @@ public class AnnotationCanvas : Control
         var pos = e.GetPosition(this);
         var imgPos = ScreenToImage(pos);
         var props = e.GetCurrentPoint(this).Properties;
-
-        // Middle button or Space+Left for panning
-        if (props.IsMiddleButtonPressed)
-        {
-            _isPanning = true;
-            _panStart = pos;
-            _panOffsetStart = _offset;
-            e.Handled = true;
-            return;
-        }
 
         if (!props.IsLeftButtonPressed) return;
 
@@ -290,14 +271,6 @@ public class AnnotationCanvas : Control
 
         var pos = e.GetPosition(this);
 
-        if (_isPanning)
-        {
-            var delta = pos - _panStart;
-            _offset = new Point(_panOffsetStart.X + delta.X, _panOffsetStart.Y + delta.Y);
-            InvalidateVisual();
-            return;
-        }
-
         if (!_isDrawing) return;
 
         var imgPos = ScreenToImage(pos);
@@ -328,12 +301,6 @@ public class AnnotationCanvas : Control
     {
         base.OnPointerReleased(e);
 
-        if (_isPanning)
-        {
-            _isPanning = false;
-            return;
-        }
-
         if (!_isDrawing || _currentAnnotation == null || _editor == null) return;
 
         _isDrawing = false;
@@ -356,25 +323,6 @@ public class AnnotationCanvas : Control
 
         _currentAnnotation = null;
         InvalidateVisual();
-    }
-
-    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
-    {
-        base.OnPointerWheelChanged(e);
-
-        var pos = e.GetPosition(this);
-        var oldZoom = _zoom;
-        var zoomDelta = e.Delta.Y > 0 ? 1.15 : 1 / 1.15;
-        _zoom = Math.Clamp(_zoom * zoomDelta, 0.1, 10.0);
-
-        // Zoom toward cursor
-        _offset = new Point(
-            pos.X - (pos.X - _offset.X) * (_zoom / oldZoom),
-            pos.Y - (pos.Y - _offset.Y) * (_zoom / oldZoom)
-        );
-
-        InvalidateVisual();
-        e.Handled = true;
     }
 
     #endregion

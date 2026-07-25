@@ -10,11 +10,10 @@ public class BlurAnnotation : AnnotationBase
 
     public override void Render(SKCanvas canvas)
     {
-        // The actual blur is applied by the canvas in a special pass
-        // Here we just draw the selection outline
+        // This is only called when the annotation is actively being dragged
         var rect = GetBounds();
 
-        // Draw a subtle hatched overlay to indicate blur region
+        // Draw a subtle overlay and dashed border while dragging
         using var overlayPaint = new SKPaint
         {
             Color = new SKColor(100, 100, 255, 40),
