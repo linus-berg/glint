@@ -12,22 +12,5 @@
         <FluentTheme />
     </Application.Styles>
 
-    <!-- System Tray Icon -->
-    <TrayIcon.Icons>
-        <TrayIcons>
-            <TrayIcon Icon="/Assets/avalonia-logo.ico"
-                      ToolTipText="Glint — Screenshot Tool"
-                      Clicked="TrayIcon_OnClicked">
-                <TrayIcon.Menu>
-                    <NativeMenu>
-                        <NativeMenuItem Header="Show Glint" Click="ShowWindow_Click" />
-                        <NativeMenuItem Header="Capture Screen" Click="CaptureScreen_Click" />
-                        <NativeMenuItem Header="Capture Region" Click="CaptureRegion_Click" />
-                        <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Quit Glint" Click="QuitApp_Click" />
-                    </NativeMenu>
-                </TrayIcon.Menu>
-            </TrayIcon>
-        </TrayIcons>
-    </TrayIcon.Icons>
+
 </Application>

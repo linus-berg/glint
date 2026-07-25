@@ -35,6 +35,26 @@ public partial class MainWindow : Window
         }
     }
 
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
+        base.OnSizeChanged(e);
+
+        // Always recenter the window when it resizes to fit a new screenshot
+        var screen = Screens.ScreenFromVisual(this) ?? Screens.Primary;
+        if (screen != null)
+        {
+            var bounds = screen.WorkingArea;
+            var scaling = screen.Scaling;
+            var pw = Bounds.Width * scaling;
+            var ph = Bounds.Height * scaling;
+            
+            Position = new PixelPoint(
+                (int)(bounds.X + (bounds.Width - pw) / 2),
+                (int)(bounds.Y + (bounds.Height - ph) / 2)
+            );
+        }
+    }
+
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
@@ -62,13 +82,7 @@ public partial class MainWindow : Window
             _viewModel.CopyToClipboardCommand.Execute(null);
             e.Handled = true;
         }
-        // Ctrl/Cmd+N = New capture (Shift for region)
-        else if (e.Key == Key.N && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
-        {
-            e.Handled = true;
-            bool isRegion = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-            ExecuteCapture(isRegion);
-        }
+
         // Ctrl/Cmd+O = Open file
         else if (e.Key == Key.O && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
         {
@@ -113,7 +127,7 @@ public partial class MainWindow : Window
         }
         else if (e.Key == Key.Escape)
         {
-            Hide();
+            Close();
             e.Handled = true;
         }
     }
@@ -128,40 +142,59 @@ public partial class MainWindow : Window
 
     private void CloseWindow_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        Hide();
+        Close();
     }
 
-    private async void ExecuteCapture(bool isRegion)
-    {
-        if (_viewModel == null) return;
-        
-        Hide();
-        await Task.Delay(100);
-        
-        if (isRegion)
-            await _viewModel.CaptureRegionCommand.ExecuteAsync(null);
-        else
-            await _viewModel.CaptureScreenCommand.ExecuteAsync(null);
-            
-        Show();
-        Activate();
-        WindowState = WindowState.Normal;
-        
-        // On macOS, bring app to front
-        Topmost = true;
-        await Task.Delay(100);
-        Topmost = false;
-    }
+
 
     private async void OnClipboardCopyRequested()
     {
         if (_viewModel?.ClipboardData == null) return;
         try
         {
-            // Save the composited image to temp and report the path
+            // Save the composited image to temp
             var tempPath = Path.Combine(Path.GetTempPath(), $"glint_clipboard_{Guid.NewGuid()}.png");
             await File.WriteAllBytesAsync(tempPath, _viewModel.ClipboardData);
-            _viewModel.Editor.StatusText = $"Image saved to: {tempPath}";
+            
+            // OS-specific clipboard copy
+            if (OperatingSystem.IsMacOS())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "osascript",
+                        Arguments = $"-e 'set the clipboard to (read (POSIX file \"{tempPath}\") as «class PNGf»)'",
+                        UseShellExecute = true,
+                        CreateNoWindow = true
+                    }
+                };
+                process.Start();
+                await process.WaitForExitAsync();
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+                var isWayland = !string.IsNullOrEmpty(waylandDisplay);
+                
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "bash",
+                        Arguments = isWayland 
+                            ? $"-c \"wl-copy < '{tempPath}'\"" 
+                            : $"-c \"xclip -selection clipboard -t image/png -i '{tempPath}'\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                process.Start();
+                await process.WaitForExitAsync();
+            }
+            
+            // Close the window after copying
+            Close();
         }
         catch (Exception ex)
         {

@@ -98,16 +98,6 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <!-- Left: File actions -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
-                    <Button Classes="action-btn" Command="{Binding CaptureScreenCommand}" ToolTip.Tip="Capture Screen (⌘N)">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="📸" FontSize="16"/>
-                            <TextBlock Text="Capture" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Classes="toolbar-btn" Command="{Binding OpenFileCommand}" ToolTip.Tip="Open Image (⌘O)">
-                        <TextBlock Text="📂 Open"/>
-                    </Button>
-                    <Border Width="1" Background="#3a3a5a" Margin="4,4"/>
                     <Button Classes="toolbar-btn" Command="{Binding SaveScreenshotCommand}" ToolTip.Tip="Save (⌘S)" IsEnabled="{Binding Editor.HasScreenshot}">
                         <TextBlock Text="💾 Save"/>
                     </Button>
