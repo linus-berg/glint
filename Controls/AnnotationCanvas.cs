@@ -182,6 +182,10 @@ public class AnnotationCanvas : Control
                 {
                     loupe.ApplyLoupe(workBitmap);
                 }
+                else if (annotation is RedactionAnnotation redaction)
+                {
+                    redaction.ApplyRedaction(workBitmap);
+                }
                 else
                 {
                     annotation.Render(workCanvas);
@@ -196,6 +200,10 @@ public class AnnotationCanvas : Control
             else if (_currentAnnotation is LoupeAnnotation currentLoupe)
             {
                 currentLoupe.ApplyLoupe(workBitmap);
+            }
+            else if (_currentAnnotation is RedactionAnnotation currentRedaction)
+            {
+                currentRedaction.ApplyRedaction(workBitmap);
             }
 
             // Draw the fully composited layered image to the screen

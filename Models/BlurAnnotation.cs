@@ -6,7 +6,7 @@ public class BlurAnnotation : AnnotationBase
 {
     public SKPoint Start { get; set; }
     public SKPoint End { get; set; }
-    public float BlurRadius { get; set; } = 25f;
+    public float BlurRadius { get; set; } = 6f;
 
     public override void Render(SKCanvas canvas)
     {
@@ -66,14 +66,14 @@ public class BlurAnnotation : AnnotationBase
             ImageFilter = SKImageFilter.CreateBlur(BlurRadius, BlurRadius, SKShaderTileMode.Clamp)
         };
         
-        canvas.DrawBitmap(subset, 0, 0, paint);
+        canvas.DrawBitmap(subset, 0, 0, SKSamplingOptions.Default, paint);
         
         // Copy back
         using var blurredImage = surface.Snapshot();
         using var blurredBitmap = SKBitmap.FromImage(blurredImage);
         
         using var targetCanvas = new SKCanvas(bitmap);
-        targetCanvas.DrawBitmap(blurredBitmap, clipRectI.Left, clipRectI.Top);
+        targetCanvas.DrawBitmap(blurredBitmap, clipRectI.Left, clipRectI.Top, SKSamplingOptions.Default);
     }
 
     public override bool HitTest(SKPoint point, float tolerance = 8f)
