@@ -80,6 +80,11 @@
             <Setter Property="Background" Value="#005fb8"/>
             <Setter Property="BorderBrush" Value="#0078d4"/>
         </Style>
+
+        <Style Selector="PathIcon.toolbar-icon">
+            <Setter Property="Width" Value="14"/>
+            <Setter Property="Height" Value="14"/>
+        </Style>
     </Window.Styles>
 
     <Border Background="#1e1e1e" CornerRadius="0" ClipToBounds="True" BorderBrush="#000000" BorderThickness="1"
@@ -94,7 +99,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2">
                     <Button Classes="toolbar-btn" Command="{Binding CopyToClipboardCommand}" ToolTip.Tip="Copy to Clipboard (⌘C)" IsEnabled="{Binding Editor.HasScreenshot}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="📋" />
+                            <PathIcon Classes="toolbar-icon" Data="M16,1H4C2.9,1 2,1.9 2,3V17H4V3H16V1M19,5H8C6.9,5 6,5.9 6,7V21C6,22.1 6.9,23 8,23H19C20.1,23 21,22.1 21,21V7C21,5.9 20.1,5 19,5M19,21H8V7H19V21Z" />
                             <TextBlock Text="Copy" />
                         </StackPanel>
                     </Button>
@@ -169,7 +174,7 @@
                     </StackPanel>
 
                     <Button Classes="toolbar-btn" Click="CloseWindow_Click" ToolTip.Tip="Close (Esc)" Foreground="#ff453a">
-                        <TextBlock Text="✕" />
+                        <PathIcon Classes="toolbar-icon" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
                     </Button>
                 </StackPanel>
             </Grid>
@@ -194,76 +199,76 @@
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsFreehand}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Freehand" ToolTip.Tip="Draw (D)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="✏️" />
+                            <PathIcon Classes="toolbar-icon" Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
                             <TextBlock Text="Draw" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsHighlighter}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Highlighter" ToolTip.Tip="Highlighter (H)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="🖍️" />
+                            <PathIcon Classes="toolbar-icon" Data="M18.5,1.15C17.97,1.15 17.46,1.34 17.07,1.73L11.26,7.55L16.91,13.2L22.73,7.39C23.5,6.61 23.5,5.35 22.73,4.56L19.89,1.73C19.5,1.34 19,1.15 18.5,1.15M10.3,8.46L4.34,14.41C4,14.7 4,15.17 4.29,15.46L5.34,16.5L3.92,17.91C3.53,18.3 3.53,18.93 3.92,19.32L4.68,20.08C5.07,20.47 5.7,20.47 6.09,20.08L7.5,18.66L8.54,19.71C8.83,20 9.3,20 9.59,19.66L15.54,13.7L10.3,8.46Z" />
                             <TextBlock Text="Highlight" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsArrow}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Arrow" ToolTip.Tip="Arrow (A)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="➡️" />
+                            <PathIcon Classes="toolbar-icon" Data="M4,15V9H12V4.16L19.84,12L12,19.84V15H4Z" />
                             <TextBlock Text="Arrow" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsRectangle}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Rectangle" ToolTip.Tip="Rectangle (R)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="⬜" />
+                            <PathIcon Classes="toolbar-icon" Data="M4,4H20V20H4V4M6,6V18H18V6H6Z" />
                             <TextBlock Text="Rect" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsEllipse}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Ellipse" ToolTip.Tip="Ellipse (E)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="⭕" />
+                            <PathIcon Classes="toolbar-icon" Data="M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2M12,20C7.58,20 4,16.42 4,12C4,7.58 7.58,4 12,4C16.42,4 20,7.58 20,12C20,16.42 16.42,20 12,20Z" />
                             <TextBlock Text="Ellipse" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsText}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Text" ToolTip.Tip="Text (T)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="📝" />
+                            <PathIcon Classes="toolbar-icon" Data="M9,4V7H13.5V19H16.5V7H21V4H9M6,9V12H8.5V19H11.5V12H14V9H6Z" />
                             <TextBlock Text="Text" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsStep}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Step" ToolTip.Tip="Step (S)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="1️⃣" />
+                            <PathIcon Classes="toolbar-icon" Data="M10,7H14V17H12V9H10V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
                             <TextBlock Text="Step" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsBlur}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Blur" ToolTip.Tip="Blur (B)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="🔲" />
+                            <PathIcon Classes="toolbar-icon" Data="M12,20A6,6 0 0,1 6,14C6,10 12,3.25 12,3.25C12,3.25 18,10 18,14A6,6 0 0,1 12,20Z" />
                             <TextBlock Text="Blur" />
                         </StackPanel>
                     </Button>
                     <Border Height="1" Background="#333333" Margin="2,4"/>
                     <Button Classes="toolbar-btn" Command="{Binding Editor.PerformUndoCommand}" IsEnabled="{Binding Editor.CanUndo}" ToolTip.Tip="Undo (⌘Z)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="↩️" />
+                            <PathIcon Classes="toolbar-icon" Data="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
                             <TextBlock Text="Undo" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Command="{Binding Editor.PerformRedoCommand}" IsEnabled="{Binding Editor.CanRedo}" ToolTip.Tip="Redo (⌘⇧Z)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="↪️" />
+                            <PathIcon Classes="toolbar-icon" Data="M18.4,10.6C16.55,9 14.15,8 11.5,8C6.85,8 2.92,11.03 1.54,15.22L3.9,16C4.95,12.81 7.95,10.5 11.5,10.5C13.45,10.5 15.23,11.22 16.62,12.38L13,16H22V7L18.4,10.6Z" />
                             <TextBlock Text="Redo" />
                         </StackPanel>
                     </Button>
                     <Border Height="1" Background="#333333" Margin="2,4"/>
                     <Button Classes="toolbar-btn" Command="{Binding Editor.ClearAnnotationsCommand}" ToolTip.Tip="Clear All" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="🗑️" />
+                            <PathIcon Classes="toolbar-icon" Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
                             <TextBlock Text="Clear" />
                         </StackPanel>
                     </Button>

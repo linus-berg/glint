@@ -20,10 +20,13 @@ public class StepAnnotation : AnnotationBase
         };
         canvas.DrawCircle(Position, radius, bgPaint);
 
+        var luminance = 0.299 * Color.Red + 0.587 * Color.Green + 0.114 * Color.Blue;
+        var contrastColor = luminance > 160 ? SKColors.Black : SKColors.White;
+
         // Draw circle border (optional, but adds contrast)
         using var borderPaint = new SKPaint
         {
-            Color = SKColors.White,
+            Color = contrastColor,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = 2f,
             IsAntialias = true
@@ -36,7 +39,7 @@ public class StepAnnotation : AnnotationBase
         
         using var textPaint = new SKPaint
         {
-            Color = SKColors.White,
+            Color = contrastColor,
             IsAntialias = true,
             Style = SKPaintStyle.Fill
         };
