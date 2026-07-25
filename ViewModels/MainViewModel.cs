@@ -106,9 +106,25 @@ public partial class MainViewModel : ViewModelBase
         OpenFileRequested?.Invoke();
     }
 
+    [RelayCommand]
+    private async Task SaveAsAsync()
+    {
+        SaveAsRequested?.Invoke();
+    }
+
+    public async Task SaveToFileAsync(string filePath)
+    {
+        if (Editor.Screenshot == null) return;
+        var composite = ImageExportService.Composite(Editor.Screenshot, Editor.Annotations.ToList());
+        await ImageExportService.SaveAsync(composite, filePath);
+        Editor.StatusText = $"Saved to {filePath}";
+        composite.Dispose();
+    }
+
     public byte[]? ClipboardData { get; set; }
     public event Action? ClipboardCopyRequested;
     public event Action? OpenFileRequested;
+    public event Action? SaveAsRequested;
 
     public void LoadFromFile(string filePath)
     {

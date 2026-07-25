@@ -24,6 +24,7 @@ public partial class MainWindow : Window
         {
             _viewModel.ClipboardCopyRequested -= OnClipboardCopyRequested;
             _viewModel.OpenFileRequested -= OnOpenFileRequested;
+            _viewModel.SaveAsRequested -= OnSaveAsRequested;
         }
 
         _viewModel = DataContext as MainViewModel;
@@ -32,6 +33,7 @@ public partial class MainWindow : Window
         {
             _viewModel.ClipboardCopyRequested += OnClipboardCopyRequested;
             _viewModel.OpenFileRequested += OnOpenFileRequested;
+            _viewModel.SaveAsRequested += OnSaveAsRequested;
         }
     }
 
@@ -70,10 +72,13 @@ public partial class MainWindow : Window
                 _viewModel.Editor.PerformUndoCommand.Execute(null);
             e.Handled = true;
         }
-        // Ctrl/Cmd+S = Save
+        // Ctrl/Cmd+S = Save, Ctrl/Cmd+Shift+S = Save As
         else if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
         {
-            _viewModel.SaveScreenshotCommand.Execute(null);
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                _viewModel.SaveAsCommand.Execute(null);
+            else
+                _viewModel.SaveScreenshotCommand.Execute(null);
             e.Handled = true;
         }
         // Ctrl/Cmd+C = Copy
@@ -168,7 +173,23 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private async void OnSaveAsRequested()
+    {
+        if (StorageProvider == null || _viewModel == null) return;
 
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save Screenshot As...",
+            DefaultExtension = "png",
+            SuggestedFileName = $"Glint_{DateTime.Now:yyyyMMdd_HHmmss}.png",
+            FileTypeChoices = new[] { FilePickerFileTypes.ImagePng, FilePickerFileTypes.All }
+        });
+
+        if (file != null)
+        {
+            await _viewModel.SaveToFileAsync(file.Path.LocalPath);
+        }
+    }
 
     private async void OnClipboardCopyRequested()
     {
