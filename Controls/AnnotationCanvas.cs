@@ -217,10 +217,16 @@ public class AnnotationCanvas : Control
 
     private SKPoint ScreenToImage(Point screenPoint)
     {
-        return new SKPoint(
-            (float)((screenPoint.X - _offset.X) / _zoom),
-            (float)((screenPoint.Y - _offset.Y) / _zoom)
-        );
+        var x = (float)((screenPoint.X - _offset.X) / _zoom);
+        var y = (float)((screenPoint.Y - _offset.Y) / _zoom);
+
+        if (_editor?.Screenshot != null)
+        {
+            x = Math.Clamp(x, 0, _editor.Screenshot.Width);
+            y = Math.Clamp(y, 0, _editor.Screenshot.Height);
+        }
+
+        return new SKPoint(x, y);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
