@@ -1,5 +1,8 @@
 # Glint
 
+<p align="center">
+  <img src="Assets/logo.jpg" width="300" alt="Glint App Logo">
+</p>
 Glint is a fast, minimal, high-utility screenshot annotation tool designed for power users. Built with C# and Avalonia UI, it runs natively on Linux (Wayland/X11) and macOS. Glint embraces a terminal-friendly, keyboard-first approach, taking screenshots directly via standard input (stdin) and offering immediate clipboard output.
 
 ## Features
