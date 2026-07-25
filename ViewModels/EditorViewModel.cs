@@ -192,6 +192,64 @@ public partial class EditorViewModel : ViewModelBase
         RequestInvalidate();
     }
 
+    public void PerformCrop(SKRectI cropRect)
+    {
+        if (Screenshot == null) return;
+        
+        // Clamp rect to bounds
+        cropRect.Intersect(new SKRectI(0, 0, Screenshot.Width, Screenshot.Height));
+        if (cropRect.Width < 10 || cropRect.Height < 10) return;
+
+        var croppedBitmap = new SKBitmap(cropRect.Width, cropRect.Height);
+        using (var canvas = new SKCanvas(croppedBitmap))
+        {
+            canvas.DrawBitmap(Screenshot, cropRect, new SKRect(0, 0, cropRect.Width, cropRect.Height), new SKSamplingOptions());
+        }
+
+        var oldScreenshot = Screenshot;
+        var oldAnnotations = Annotations.ToList();
+
+        var newAnnotations = new List<AnnotationBase>();
+        foreach (var ann in oldAnnotations)
+        {
+            var cloned = ann.Clone();
+            cloned.Translate(-cropRect.Left, -cropRect.Top);
+            
+            var b = cloned.GetBounds();
+            // keep if it intersects the new bounds
+            if (b.IntersectsWith(new SKRect(0, 0, cropRect.Width, cropRect.Height)))
+            {
+                newAnnotations.Add(cloned);
+            }
+        }
+
+        UndoRedo.AddWithoutExecuting(new UndoableAction
+        {
+            Undo = () =>
+            {
+                Screenshot = oldScreenshot;
+                Annotations.Clear();
+                foreach (var a in oldAnnotations) Annotations.Add(a);
+                RequestInvalidate();
+            },
+            Redo = () =>
+            {
+                Screenshot = croppedBitmap;
+                Annotations.Clear();
+                foreach (var a in newAnnotations) Annotations.Add(a);
+                RequestInvalidate();
+            },
+            Description = "Crop"
+        });
+
+        Screenshot = croppedBitmap;
+        Annotations.Clear();
+        foreach (var a in newAnnotations) Annotations.Add(a);
+        
+        // We do NOT dispose the oldScreenshot because it's stored in the Undo stack!
+        RequestInvalidate();
+    }
+
     [RelayCommand]
     private void ClearAnnotations()
     {

@@ -12,4 +12,5 @@ public abstract class AnnotationBase
     public abstract bool HitTest(SKPoint point, float tolerance = 8f);
     public abstract SKRect GetBounds();
     public abstract AnnotationBase Clone();
+    public abstract void Translate(float dx, float dy);
 }

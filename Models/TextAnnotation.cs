@@ -81,6 +81,11 @@ public class TextAnnotation : AnnotationBase
         );
     }
 
+    public override void Translate(float dx, float dy)
+    {
+        Position = new SKPoint(Position.X + dx, Position.Y + dy);
+    }
+
     public override AnnotationBase Clone()
     {
         return new TextAnnotation

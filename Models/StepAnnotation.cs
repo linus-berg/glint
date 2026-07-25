@@ -67,6 +67,11 @@ public class StepAnnotation : AnnotationBase
         return SKRect.Create(Position.X - radius, Position.Y - radius, radius * 2, radius * 2);
     }
 
+    public override void Translate(float dx, float dy)
+    {
+        Position = new SKPoint(Position.X + dx, Position.Y + dy);
+    }
+
     public override AnnotationBase Clone()
     {
         return new StepAnnotation

@@ -20,6 +20,7 @@ public static class ToolTypeConverters
     public static readonly IValueConverter IsEllipse = new ToolTypeConverter(ToolType.Ellipse);
     public static readonly IValueConverter IsStep = new ToolTypeConverter(ToolType.Step);
     public static readonly IValueConverter IsHighlighter = new ToolTypeConverter(ToolType.Highlighter);
+    public static readonly IValueConverter IsCrop = new ToolTypeConverter(ToolType.Crop);
 }
 
 public class ToolTypeConverter : IValueConverter

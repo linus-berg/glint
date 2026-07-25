@@ -57,6 +57,12 @@ public class FreehandAnnotation : AnnotationBase
         return new SKRect(minX, minY, maxX, maxY);
     }
 
+    public override void Translate(float dx, float dy)
+    {
+        for (int i = 0; i < Points.Count; i++)
+            Points[i] = new SKPoint(Points[i].X + dx, Points[i].Y + dy);
+    }
+
     public override AnnotationBase Clone()
     {
         return new FreehandAnnotation

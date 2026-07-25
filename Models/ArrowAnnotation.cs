@@ -116,6 +116,12 @@ public class ArrowAnnotation : AnnotationBase
         return rect;
     }
 
+    public override void Translate(float dx, float dy)
+    {
+        Start = new SKPoint(Start.X + dx, Start.Y + dy);
+        End = new SKPoint(End.X + dx, End.Y + dy);
+    }
+
     public override AnnotationBase Clone()
     {
         return new ArrowAnnotation

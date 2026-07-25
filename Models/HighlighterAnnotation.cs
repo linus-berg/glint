@@ -38,6 +38,11 @@ public class HighlighterAnnotation : AnnotationBase
         return bounds;
     }
 
+    public override void Translate(float dx, float dy)
+    {
+        Path.Transform(SKMatrix.CreateTranslation(dx, dy));
+    }
+
     public override AnnotationBase Clone()
     {
         return new HighlighterAnnotation

@@ -149,6 +149,11 @@ public partial class MainWindow : Window
                 _viewModel.Editor.SelectToolCommand.Execute("Loupe");
                 e.Handled = true;
             }
+            else if (e.Key == Key.C)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Crop");
+                e.Handled = true;
+            }
         }
         else if (e.Key == Key.Escape)
         {

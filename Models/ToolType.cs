@@ -11,5 +11,6 @@ public enum ToolType
     Rectangle,
     Ellipse,
     Step,
-    Highlighter
+    Highlighter,
+    Crop
 }

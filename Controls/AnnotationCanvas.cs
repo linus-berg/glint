@@ -284,6 +284,9 @@ public class AnnotationCanvas : Control
             case ToolType.Loupe:
                 StartLoupe(imgPos);
                 break;
+            case ToolType.Crop:
+                StartCrop(imgPos);
+                break;
         }
 
         e.Handled = true;
@@ -329,6 +332,10 @@ public class AnnotationCanvas : Control
             case HighlighterAnnotation highlighter:
                 highlighter.Path.LineTo(imgPos);
                 break;
+            case CropAnnotation crop:
+                crop.End = imgPos;
+                InvalidateVisual();
+                break;
         }
 
         InvalidateVisual();
@@ -342,24 +349,35 @@ public class AnnotationCanvas : Control
 
         _isDrawing = false;
 
-        // Only add if the annotation has meaningful content
-        bool shouldAdd = _currentAnnotation switch
+        if (_currentAnnotation is CropAnnotation ca)
         {
-            FreehandAnnotation fh => fh.Points.Count > 2,
-            ArrowAnnotation ar => SKPoint.Distance(ar.Start, ar.End) > 5,
-            RectangleAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
-            EllipseAnnotation el => Math.Abs(el.End.X - el.Start.X) > 3 && Math.Abs(el.End.Y - el.Start.Y) > 3,
-            BlurAnnotation bl => Math.Abs(bl.End.X - bl.Start.X) > 5 && Math.Abs(bl.End.Y - bl.Start.Y) > 5,
-            RedactionAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
-            LoupeAnnotation lo => Math.Abs(lo.End.X - lo.Start.X) > 5 && Math.Abs(lo.End.Y - lo.Start.Y) > 5,
-            HighlighterAnnotation hl => !hl.Path.IsEmpty,
-            StepAnnotation => true,
-            _ => true
-        };
+            var r = ca.GetCropRect();
+            if (r.Width >= 10 && r.Height >= 10)
+            {
+                _editor.PerformCrop(new SKRectI((int)r.Left, (int)r.Top, (int)r.Right, (int)r.Bottom));
+            }
+        }
+        else
+        {
+            // Only add if the annotation has meaningful content
+            bool shouldAdd = _currentAnnotation switch
+            {
+                FreehandAnnotation fh => fh.Points.Count > 2,
+                ArrowAnnotation ar => SKPoint.Distance(ar.Start, ar.End) > 5,
+                RectangleAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
+                EllipseAnnotation el => Math.Abs(el.End.X - el.Start.X) > 3 && Math.Abs(el.End.Y - el.Start.Y) > 3,
+                BlurAnnotation bl => Math.Abs(bl.End.X - bl.Start.X) > 5 && Math.Abs(bl.End.Y - bl.Start.Y) > 5,
+                RedactionAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
+                LoupeAnnotation lo => Math.Abs(lo.End.X - lo.Start.X) > 5 && Math.Abs(lo.End.Y - lo.Start.Y) > 5,
+                HighlighterAnnotation hl => !hl.Path.IsEmpty,
+                StepAnnotation => true,
+                _ => true
+            };
 
-        if (shouldAdd)
-        {
-            _editor.AddAnnotation(_currentAnnotation);
+            if (shouldAdd)
+            {
+                _editor.AddAnnotation(_currentAnnotation);
+            }
         }
 
         _currentAnnotation = null;
@@ -474,6 +492,17 @@ public class AnnotationCanvas : Control
         {
             Start = pos,
             End = pos
+        };
+        _isDrawing = true;
+    }
+
+    private void StartCrop(SKPoint pos)
+    {
+        _currentAnnotation = new CropAnnotation
+        {
+            Start = pos,
+            End = pos,
+            FullImageBounds = new SKRect(0, 0, _editor!.Screenshot.Width, _editor.Screenshot.Height)
         };
         _isDrawing = true;
     }

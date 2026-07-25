@@ -216,6 +216,13 @@
                             <TextBlock Text="Highlight" />
                         </StackPanel>
                     </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsCrop}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Crop" ToolTip.Tip="Crop (C)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Classes="toolbar-icon" Data="M17,17V7H7V5H17C18.1,5 19,5.9 19,7V17H17M7,17V7H5V17C5,18.1 5.9,19 7,19H17V17H7Z" />
+                            <TextBlock Text="Crop" />
+                        </StackPanel>
+                    </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsArrow}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Arrow" ToolTip.Tip="Arrow (A)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
