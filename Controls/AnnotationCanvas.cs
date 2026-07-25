@@ -137,6 +137,9 @@ public class AnnotationCanvas : Control
     {
         base.Render(context);
 
+        // Ensure hit testing works across the entire bounds even if the image is scaled
+        context.DrawRectangle(new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)), null, new Rect(Bounds.Size));
+
         if (_editor?.Screenshot == null) return;
 
         var screenshot = _editor.Screenshot;
@@ -217,16 +220,10 @@ public class AnnotationCanvas : Control
 
     private SKPoint ScreenToImage(Point screenPoint)
     {
-        var x = (float)((screenPoint.X - _offset.X) / _zoom);
-        var y = (float)((screenPoint.Y - _offset.Y) / _zoom);
-
-        if (_editor?.Screenshot != null)
-        {
-            x = Math.Clamp(x, 0, _editor.Screenshot.Width);
-            y = Math.Clamp(y, 0, _editor.Screenshot.Height);
-        }
-
-        return new SKPoint(x, y);
+        return new SKPoint(
+            (float)((screenPoint.X - _offset.X) / _zoom),
+            (float)((screenPoint.Y - _offset.Y) / _zoom)
+        );
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)

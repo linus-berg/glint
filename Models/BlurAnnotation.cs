@@ -39,21 +39,26 @@ public class BlurAnnotation : AnnotationBase
     public void ApplyBlur(SKBitmap bitmap)
     {
         var rect = GetBounds();
-        var clipRect = SKRectI.Create(
-            Math.Max(0, (int)rect.Left),
-            Math.Max(0, (int)rect.Top),
-            Math.Min(bitmap.Width - (int)rect.Left, (int)rect.Width),
-            Math.Min(bitmap.Height - (int)rect.Top, (int)rect.Height)
+        var imageRect = new SKRect(0, 0, bitmap.Width, bitmap.Height);
+        
+        if (!rect.IntersectsWith(imageRect)) return;
+        
+        var clipRect = SKRect.Intersect(rect, imageRect);
+        var clipRectI = SKRectI.Create(
+            (int)clipRect.Left,
+            (int)clipRect.Top,
+            (int)clipRect.Width,
+            (int)clipRect.Height
         );
 
-        if (clipRect.Width <= 0 || clipRect.Height <= 0) return;
+        if (clipRectI.Width <= 0 || clipRectI.Height <= 0) return;
 
         // Extract the region
         using var subset = new SKBitmap();
-        if (!bitmap.ExtractSubset(subset, clipRect)) return;
+        if (!bitmap.ExtractSubset(subset, clipRectI)) return;
 
         // Apply blur
-        using var surface = SKSurface.Create(new SKImageInfo(clipRect.Width, clipRect.Height));
+        using var surface = SKSurface.Create(new SKImageInfo(clipRectI.Width, clipRectI.Height));
         var canvas = surface.Canvas;
         
         using var paint = new SKPaint
@@ -68,7 +73,7 @@ public class BlurAnnotation : AnnotationBase
         using var blurredBitmap = SKBitmap.FromImage(blurredImage);
         
         using var targetCanvas = new SKCanvas(bitmap);
-        targetCanvas.DrawBitmap(blurredBitmap, clipRect.Left, clipRect.Top);
+        targetCanvas.DrawBitmap(blurredBitmap, clipRectI.Left, clipRectI.Top);
     }
 
     public override bool HitTest(SKPoint point, float tolerance = 8f)
