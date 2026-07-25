@@ -26,6 +26,7 @@ public class AnnotationCanvas : Control
     private SKPoint _dragStart;
     private AnnotationBase? _currentAnnotation;
     private TextAnnotation? _activeTextAnnotation;
+    private SKPoint? _previewPos;
     
     public bool IsEditingText => _activeTextAnnotation != null && _activeTextAnnotation.IsEditing;
 
@@ -217,6 +218,19 @@ public class AnnotationCanvas : Control
             // Draw active text annotation
             _activeTextAnnotation?.Render(canvas);
 
+            // Draw Step preview
+            if (!_isDrawing && _previewPos.HasValue && _editor?.CurrentTool == ToolType.Step)
+            {
+                var previewStep = new StepAnnotation
+                {
+                    Position = _previewPos.Value,
+                    Number = _editor.Annotations.OfType<StepAnnotation>().Count() + 1,
+                    Color = _editor.CurrentColor.WithAlpha(128), // 50% opacity preview
+                    StrokeWidth = _editor.CurrentStrokeWidth
+                };
+                previewStep.Render(canvas);
+            }
+
             surface.Flush();
         }
 
@@ -298,10 +312,17 @@ public class AnnotationCanvas : Control
         if (_editor?.Screenshot == null) return;
 
         var pos = e.GetPosition(this);
-
-        if (!_isDrawing) return;
-
         var imgPos = ScreenToImage(pos);
+
+        if (!_isDrawing)
+        {
+            if (_editor.CurrentTool == ToolType.Step)
+            {
+                _previewPos = imgPos;
+                InvalidateVisual();
+            }
+            return;
+        }
 
         switch (_currentAnnotation)
         {
@@ -385,6 +406,16 @@ public class AnnotationCanvas : Control
     }
 
     #endregion
+
+    protected override void OnPointerExited(PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+        _previewPos = null;
+        if (_editor?.CurrentTool == ToolType.Step)
+        {
+            InvalidateVisual();
+        }
+    }
 
     #region Drawing Tool Implementations
 
