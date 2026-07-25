@@ -90,43 +90,51 @@ public partial class MainWindow : Window
             e.Handled = true;
         }
         // Tool shortcuts (single key, no modifier)
-        else if (e.Key == Key.D && e.KeyModifiers == KeyModifiers.None)
+        else if (e.KeyModifiers == KeyModifiers.None)
         {
-            _viewModel.Editor.SelectToolCommand.Execute("Freehand");
-            e.Handled = true;
-        }
-        else if (e.Key == Key.A && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.Editor.SelectToolCommand.Execute("Arrow");
-            e.Handled = true;
-        }
-        else if (e.Key == Key.T && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.Editor.SelectToolCommand.Execute("Text");
-            e.Handled = true;
-        }
-        else if (e.Key == Key.B && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.Editor.SelectToolCommand.Execute("Blur");
-            e.Handled = true;
-        }
-        else if (e.Key == Key.R && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.Editor.SelectToolCommand.Execute("Rectangle");
-            e.Handled = true;
-        }
-        else if (e.Key == Key.E && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.Editor.SelectToolCommand.Execute("Ellipse");
-            e.Handled = true;
-        }
-        else if (e.Key == Key.V && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.Editor.SelectToolCommand.Execute("Select");
-            e.Handled = true;
+            if (AnnotationCanvas.IsEditingText) return; // Do not steal keys while typing text
+            
+            if (e.Key == Key.D)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Freehand");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.A)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Arrow");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.T)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Text");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.B)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Blur");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.R)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Rectangle");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.E)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Ellipse");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.V)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Select");
+                e.Handled = true;
+            }
         }
         else if (e.Key == Key.Escape)
         {
+            // If editing text, let AnnotationCanvas handle Escape to cancel
+            if (AnnotationCanvas.IsEditingText) return;
+            
             Close();
             e.Handled = true;
         }
@@ -164,11 +172,12 @@ public partial class MainWindow : Window
                     StartInfo = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = "osascript",
-                        Arguments = $"-e 'set the clipboard to (read (POSIX file \"{tempPath}\") as «class PNGf»)'",
-                        UseShellExecute = true,
+                        UseShellExecute = false,
                         CreateNoWindow = true
                     }
                 };
+                process.StartInfo.ArgumentList.Add("-e");
+                process.StartInfo.ArgumentList.Add($"set the clipboard to (read (POSIX file \"{tempPath}\") as «class PNGf»)");
                 process.Start();
                 await process.WaitForExitAsync();
             }
@@ -245,6 +254,14 @@ public partial class MainWindow : Window
         if (sender is Border border && border.Tag is string tagStr && int.TryParse(tagStr, out var index))
         {
             _viewModel?.Editor.SelectStrokeCommand.Execute(index);
+        }
+    }
+
+    private void OnFontSizeSwatchPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border border && border.Tag is string tagStr && int.TryParse(tagStr, out var index))
+        {
+            _viewModel?.Editor.SelectFontSizeCommand.Execute(index);
         }
     }
 }

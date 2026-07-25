@@ -41,6 +41,9 @@ public partial class EditorViewModel : ViewModelBase
     [ObservableProperty]
     public partial int SelectedStrokeIndex { get; set; } = 1;
 
+    [ObservableProperty]
+    public partial int SelectedFontSizeIndex { get; set; } = 1;
+
     public ObservableCollection<AnnotationBase> Annotations { get; } = new();
     public UndoRedoManager UndoRedo { get; } = new();
 
@@ -59,6 +62,9 @@ public partial class EditorViewModel : ViewModelBase
 
     // Preset stroke widths
     public float[] PresetStrokes { get; } = new[] { 1f, 3f, 5f, 8f };
+
+    // Preset font sizes
+    public float[] PresetFontSizes { get; } = new[] { 14f, 20f, 32f, 48f };
 
     /// <summary>
     /// Event raised when the canvas should be redrawn.
@@ -138,6 +144,16 @@ public partial class EditorViewModel : ViewModelBase
         {
             SelectedStrokeIndex = index;
             CurrentStrokeWidth = PresetStrokes[index];
+        }
+    }
+
+    [RelayCommand]
+    private void SelectFontSize(int index)
+    {
+        if (index >= 0 && index < PresetFontSizes.Length)
+        {
+            SelectedFontSizeIndex = index;
+            CurrentFontSize = PresetFontSizes[index];
         }
     }
 

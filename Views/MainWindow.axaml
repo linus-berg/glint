@@ -152,6 +152,30 @@
 
                     <Border Width="1" Background="#3a3a5a" Margin="4,4"/>
 
+                    <!-- Font Size -->
+                    <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center"
+                                IsVisible="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsText}}">
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedFontSizeIndex, Converter={x:Static controls:IndexConverters.Is0}}"
+                                PointerPressed="OnFontSizeSwatchPressed" Tag="0">
+                            <TextBlock Text="A" FontSize="10" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedFontSizeIndex, Converter={x:Static controls:IndexConverters.Is1}}"
+                                PointerPressed="OnFontSizeSwatchPressed" Tag="1">
+                            <TextBlock Text="A" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedFontSizeIndex, Converter={x:Static controls:IndexConverters.Is2}}"
+                                PointerPressed="OnFontSizeSwatchPressed" Tag="2">
+                            <TextBlock Text="A" FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedFontSizeIndex, Converter={x:Static controls:IndexConverters.Is3}}"
+                                PointerPressed="OnFontSizeSwatchPressed" Tag="3">
+                            <TextBlock Text="A" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Width="1" Background="#3a3a5a" Margin="4,4"/>
+                    </StackPanel>
+
+                    <Border Width="1" Background="#3a3a5a" Margin="4,4"/>
+
                     <Button Classes="toolbar-btn" Click="CloseWindow_Click" ToolTip.Tip="Close (Esc)" Foreground="#dd5555" FontWeight="Bold">
                         <StackPanel Orientation="Horizontal" Spacing="0">
                             <TextBlock Text="✕" FontSize="14"/>

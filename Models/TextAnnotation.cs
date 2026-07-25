@@ -20,13 +20,14 @@ public class TextAnnotation : AnnotationBase
             IsAntialias = true
         };
 
+        font.GetFontMetrics(out var metrics);
+
         // Draw background for readability
         var displayText = Text;
         if (IsEditing && string.IsNullOrEmpty(displayText))
-            displayText = "|";
+            displayText = " "; // Use a space to measure height if empty
 
-        var bounds = new SKRect();
-        font.MeasureText(displayText, out bounds, paint);
+        float advance = font.MeasureText(displayText, out _, paint);
         
         using var bgPaint = new SKPaint
         {
@@ -35,28 +36,27 @@ public class TextAnnotation : AnnotationBase
         };
         
         var bgRect = SKRect.Create(
-            Position.X + bounds.Left - 4,
-            Position.Y + bounds.Top - 2,
-            bounds.Width + 8,
-            bounds.Height + 4
+            Position.X - 4,
+            Position.Y + metrics.Ascent - 2,
+            advance + 8,
+            (metrics.Descent - metrics.Ascent) + 4
         );
         canvas.DrawRoundRect(bgRect, 3, 3, bgPaint);
 
-        canvas.DrawText(displayText, Position.X, Position.Y, font, paint);
+        canvas.DrawText(Text, Position.X, Position.Y, font, paint);
 
         // Draw cursor if editing
         if (IsEditing)
         {
-            font.MeasureText(Text, out var textBounds, paint);
-            var cursorX = Position.X + textBounds.Width;
-            if (string.IsNullOrEmpty(Text)) cursorX = Position.X;
+            float textAdvance = font.MeasureText(Text, out _, paint);
+            var cursorX = Position.X + textAdvance;
             using var cursorPaint = new SKPaint
             {
                 Color = Color,
                 StrokeWidth = 2,
                 Style = SKPaintStyle.Stroke
             };
-            canvas.DrawLine(cursorX, Position.Y - FontSize + 4, cursorX, Position.Y + 4, cursorPaint);
+            canvas.DrawLine(cursorX, Position.Y + metrics.Ascent, cursorX, Position.Y + metrics.Descent, cursorPaint);
         }
     }
 
@@ -69,14 +69,16 @@ public class TextAnnotation : AnnotationBase
     public override SKRect GetBounds()
     {
         using var font = new SKFont(SKTypeface.FromFamilyName("Inter", SKFontStyle.Normal), FontSize);
-        var bounds = new SKRect();
+        font.GetFontMetrics(out var metrics);
+        
         var displayText = string.IsNullOrEmpty(Text) ? "A" : Text;
-        font.MeasureText(displayText, out bounds);
+        float advance = font.MeasureText(displayText, out _);
+        
         return SKRect.Create(
-            Position.X + bounds.Left,
-            Position.Y + bounds.Top,
-            bounds.Width,
-            bounds.Height
+            Position.X,
+            Position.Y + metrics.Ascent,
+            advance,
+            metrics.Descent - metrics.Ascent
         );
     }
 

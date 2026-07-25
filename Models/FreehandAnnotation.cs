@@ -10,6 +10,14 @@ public class FreehandAnnotation : AnnotationBase
     {
         if (Points.Count < 2) return;
 
+        var pathBuilder = new SKPathBuilder();
+        pathBuilder.MoveTo(Points[0]);
+
+        for (int i = 1; i < Points.Count; i++)
+        {
+            pathBuilder.LineTo(Points[i]);
+        }
+
         using var paint = new SKPaint
         {
             Color = Color,
@@ -20,12 +28,7 @@ public class FreehandAnnotation : AnnotationBase
             IsAntialias = true
         };
 
-        var path = new SKPath();
-        path.MoveTo(Points[0]);
-        for (int i = 1; i < Points.Count; i++)
-        {
-            path.LineTo(Points[i]);
-        }
+        using var path = pathBuilder.Detach();
         canvas.DrawPath(path, paint);
     }
 

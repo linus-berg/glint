@@ -18,11 +18,24 @@ public class ArrowAnnotation : AnnotationBase
             IsAntialias = true
         };
 
-        // Draw the line
-        canvas.DrawLine(Start, End, paint);
+        var dx = End.X - Start.X;
+        var dy = End.Y - Start.Y;
+        var length = (float)Math.Sqrt(dx * dx + dy * dy);
+        
+        var angle = (float)Math.Atan2(dy, dx);
+        
+        if (length > 0)
+        {
+            // Shorten the line by StrokeWidth so the round cap doesn't poke out the tip of the arrowhead
+            var shortenBy = Math.Min(length, StrokeWidth * 1.2f);
+            var lineEnd = new SKPoint(
+                End.X - shortenBy * (dx / length),
+                End.Y - shortenBy * (dy / length)
+            );
+            canvas.DrawLine(Start, lineEnd, paint);
+        }
 
         // Draw arrowhead
-        var angle = (float)Math.Atan2(End.Y - Start.Y, End.X - Start.X);
         var headLength = Math.Max(StrokeWidth * 4, 15f);
         var headAngle = (float)(Math.PI / 6); // 30 degrees
 
@@ -42,11 +55,13 @@ public class ArrowAnnotation : AnnotationBase
             IsAntialias = true
         };
 
-        var path = new SKPath();
-        path.MoveTo(End);
-        path.LineTo(p1);
-        path.LineTo(p2);
-        path.Close();
+        var pathBuilder = new SKPathBuilder();
+        pathBuilder.MoveTo(End);
+        pathBuilder.LineTo(p1);
+        pathBuilder.LineTo(p2);
+        pathBuilder.Close();
+        
+        using var path = pathBuilder.Detach();
         canvas.DrawPath(path, fillPaint);
     }
 

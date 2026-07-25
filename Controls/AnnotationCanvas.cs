@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
@@ -25,6 +26,8 @@ public class AnnotationCanvas : Control
     private SKPoint _dragStart;
     private AnnotationBase? _currentAnnotation;
     private TextAnnotation? _activeTextAnnotation;
+    
+    public bool IsEditingText => _activeTextAnnotation != null && _activeTextAnnotation.IsEditing;
 
     // Pan/Zoom state
     private double _zoom = 1.0;
@@ -37,6 +40,7 @@ public class AnnotationCanvas : Control
     {
         ClipToBounds = true;
         Focusable = true;
+        LostFocus += (s, e) => CommitActiveText();
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -195,6 +199,9 @@ public class AnnotationCanvas : Control
 
             // Draw current in-progress annotation
             _currentAnnotation?.Render(canvas);
+            
+            // Draw active text annotation
+            _activeTextAnnotation?.Render(canvas);
 
             surface.Flush();
         }
@@ -435,15 +442,7 @@ public class AnnotationCanvas : Control
     private void StartOrEditText(SKPoint pos)
     {
         // Finish any existing text editing
-        if (_activeTextAnnotation != null)
-        {
-            _activeTextAnnotation.IsEditing = false;
-            if (!string.IsNullOrWhiteSpace(_activeTextAnnotation.Text))
-            {
-                _editor!.AddAnnotation(_activeTextAnnotation);
-            }
-            _activeTextAnnotation = null;
-        }
+        CommitActiveText();
 
         // Check if clicked on existing text annotation
         foreach (var annotation in _editor!.Annotations)
@@ -468,6 +467,23 @@ public class AnnotationCanvas : Control
         InvalidateVisual();
     }
 
+    public void CommitActiveText()
+    {
+        if (_activeTextAnnotation != null)
+        {
+            _activeTextAnnotation.IsEditing = false;
+            if (!string.IsNullOrWhiteSpace(_activeTextAnnotation.Text))
+            {
+                if (_editor != null && !_editor.Annotations.Contains(_activeTextAnnotation))
+                {
+                    _editor.AddAnnotation(_activeTextAnnotation);
+                }
+            }
+            _activeTextAnnotation = null;
+            InvalidateVisual();
+        }
+    }
+
     #endregion
 
     #region Text Input
@@ -478,16 +494,16 @@ public class AnnotationCanvas : Control
         {
             if (e.Key == Key.Escape)
             {
-                // Cancel text editing
-                _activeTextAnnotation.IsEditing = false;
-                if (!string.IsNullOrWhiteSpace(_activeTextAnnotation.Text))
+                // Cancel text editing (discard if new)
+                if (_editor != null && !_editor.Annotations.Contains(_activeTextAnnotation))
                 {
-                    if (!_editor!.Annotations.Contains(_activeTextAnnotation))
-                    {
-                        _editor.AddAnnotation(_activeTextAnnotation);
-                    }
+                    _activeTextAnnotation = null;
                 }
-                _activeTextAnnotation = null;
+                else
+                {
+                    _activeTextAnnotation.IsEditing = false;
+                    _activeTextAnnotation = null;
+                }
                 InvalidateVisual();
                 e.Handled = true;
                 return;
@@ -495,17 +511,7 @@ public class AnnotationCanvas : Control
 
             if (e.Key == Key.Return || e.Key == Key.Enter)
             {
-                // Commit text
-                _activeTextAnnotation.IsEditing = false;
-                if (!string.IsNullOrWhiteSpace(_activeTextAnnotation.Text))
-                {
-                    if (!_editor!.Annotations.Contains(_activeTextAnnotation))
-                    {
-                        _editor.AddAnnotation(_activeTextAnnotation);
-                    }
-                }
-                _activeTextAnnotation = null;
-                InvalidateVisual();
+                CommitActiveText();
                 e.Handled = true;
                 return;
             }
