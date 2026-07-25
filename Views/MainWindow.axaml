@@ -1,0 +1,264 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Glint.ViewModels"
+        xmlns:controls="using:Glint.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="750"
+        x:Class="Glint.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="{Binding Title}"
+        SystemDecorations="None"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <!-- Modern dark theme overrides -->
+        <Style Selector="Button.toolbar-btn">
+            <Setter Property="Background" Value="#2d2d44"/>
+            <Setter Property="Foreground" Value="#e0e0e0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn:pointerover">
+            <Setter Property="Background" Value="#3d3d5c"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn:pressed">
+            <Setter Property="Background" Value="#5c5c8a"/>
+        </Style>
+        <Style Selector="Button.toolbar-btn.active">
+            <Setter Property="Background" Value="#6c63ff"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="Button.action-btn">
+            <Setter Property="Background" Value="#6c63ff"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.action-btn:pointerover">
+            <Setter Property="Background" Value="#7c73ff"/>
+        </Style>
+        <Style Selector="Button.action-btn:pressed">
+            <Setter Property="Background" Value="#5a52e0"/>
+        </Style>
+
+        <Style Selector="Border.color-swatch">
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Border.color-swatch.selected">
+            <Setter Property="BorderBrush" Value="White"/>
+        </Style>
+
+        <Style Selector="Border.stroke-swatch">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="#2d2d44"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Border.stroke-swatch.selected">
+            <Setter Property="Background" Value="#6c63ff"/>
+        </Style>
+    </Window.Styles>
+
+    <Border Background="#1a1a2e" CornerRadius="8" ClipToBounds="True" BorderBrush="#3a3a5a" BorderThickness="1" Margin="8"
+            IsVisible="{Binding Editor.HasScreenshot}">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="16" Opacity="0.4" OffsetX="0" OffsetY="4"/>
+        </Border.Effect>
+        <Grid RowDefinitions="Auto,*">
+
+        <!-- Top Toolbar (Draggable) -->
+        <Border Grid.Row="0" Background="#16162a" Padding="8" BorderBrush="#2a2a4a" BorderThickness="0,0,0,1"
+                PointerPressed="OnTitleBarPointerPressed">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Left: File actions -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                    <Button Classes="action-btn" Command="{Binding CaptureScreenCommand}" ToolTip.Tip="Capture Screen (⌘N)">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="📸" FontSize="16"/>
+                            <TextBlock Text="Capture" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Command="{Binding OpenFileCommand}" ToolTip.Tip="Open Image (⌘O)">
+                        <TextBlock Text="📂 Open"/>
+                    </Button>
+                    <Border Width="1" Background="#3a3a5a" Margin="4,4"/>
+                    <Button Classes="toolbar-btn" Command="{Binding SaveScreenshotCommand}" ToolTip.Tip="Save (⌘S)" IsEnabled="{Binding Editor.HasScreenshot}">
+                        <TextBlock Text="💾 Save"/>
+                    </Button>
+                    <Button Classes="toolbar-btn" Command="{Binding CopyToClipboardCommand}" ToolTip.Tip="Copy to Clipboard (⌘C)" IsEnabled="{Binding Editor.HasScreenshot}">
+                        <TextBlock Text="📋 Copy"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- Right: Color & stroke pickers -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <!-- Color Picker -->
+                    <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is0}}"
+                                Background="#FF0000" PointerPressed="OnColorSwatchPressed" Tag="0"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is1}}"
+                                Background="#FF5722" PointerPressed="OnColorSwatchPressed" Tag="1"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is2}}"
+                                Background="#FFC107" PointerPressed="OnColorSwatchPressed" Tag="2"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is3}}"
+                                Background="#4CAF50" PointerPressed="OnColorSwatchPressed" Tag="3"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is4}}"
+                                Background="#2196F3" PointerPressed="OnColorSwatchPressed" Tag="4"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is5}}"
+                                Background="#9C27B0" PointerPressed="OnColorSwatchPressed" Tag="5"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is6}}"
+                                Background="#FFFFFF" PointerPressed="OnColorSwatchPressed" Tag="6"/>
+                        <Border Classes="color-swatch" Classes.selected="{Binding Editor.SelectedColorIndex, Converter={x:Static controls:IndexConverters.Is7}}"
+                                Background="#000000" PointerPressed="OnColorSwatchPressed" Tag="7"/>
+                    </StackPanel>
+
+                    <Border Width="1" Background="#3a3a5a" Margin="0,4"/>
+
+                    <!-- Stroke Width -->
+                    <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedStrokeIndex, Converter={x:Static controls:IndexConverters.Is0}}"
+                                PointerPressed="OnStrokeSwatchPressed" Tag="0">
+                            <Ellipse Width="4" Height="4" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedStrokeIndex, Converter={x:Static controls:IndexConverters.Is1}}"
+                                PointerPressed="OnStrokeSwatchPressed" Tag="1">
+                            <Ellipse Width="8" Height="8" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedStrokeIndex, Converter={x:Static controls:IndexConverters.Is2}}"
+                                PointerPressed="OnStrokeSwatchPressed" Tag="2">
+                            <Ellipse Width="12" Height="12" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border Classes="stroke-swatch" Classes.selected="{Binding Editor.SelectedStrokeIndex, Converter={x:Static controls:IndexConverters.Is3}}"
+                                PointerPressed="OnStrokeSwatchPressed" Tag="3">
+                            <Ellipse Width="16" Height="16" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+
+                    <Border Width="1" Background="#3a3a5a" Margin="4,4"/>
+
+                    <Button Classes="toolbar-btn" Click="CloseWindow_Click" ToolTip.Tip="Close (Esc)" Foreground="#dd5555" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="0">
+                            <TextBlock Text="✕" FontSize="14"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+            
+            <!-- Canvas -->
+            <Border Grid.Column="0" Background="#12122a" ClipToBounds="True">
+                <Panel>
+                    <!-- Annotation Canvas -->
+                    <controls:AnnotationCanvas x:Name="AnnotationCanvas"
+                                               IsVisible="{Binding Editor.HasScreenshot}"
+                                               Focusable="True"/>
+                </Panel>
+            </Border>
+
+            <!-- Right Toolbar -->
+            <Border Grid.Column="1" Background="#16162a" Padding="8" BorderBrush="#2a2a4a" BorderThickness="1,0,0,0">
+                <StackPanel Orientation="Vertical" Spacing="2">
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsSelect}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Select" ToolTip.Tip="Select (V)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="🔍" />
+                            <TextBlock Text="Select" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsFreehand}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Freehand" ToolTip.Tip="Draw (D)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="✏️" />
+                            <TextBlock Text="Draw" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsArrow}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Arrow" ToolTip.Tip="Arrow (A)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="➡️" />
+                            <TextBlock Text="Arrow" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsRectangle}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Rectangle" ToolTip.Tip="Rectangle (R)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="⬜" />
+                            <TextBlock Text="Rect" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsEllipse}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Ellipse" ToolTip.Tip="Ellipse (E)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="⭕" />
+                            <TextBlock Text="Ellipse" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsText}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Text" ToolTip.Tip="Text (T)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="🔤" />
+                            <TextBlock Text="Text" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsBlur}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Blur" ToolTip.Tip="Blur (B)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="🔲" />
+                            <TextBlock Text="Blur" />
+                        </StackPanel>
+                    </Button>
+                    <Border Height="1" Background="#3a3a5a" Margin="4,8"/>
+                    <Button Classes="toolbar-btn" Command="{Binding Editor.PerformUndoCommand}" IsEnabled="{Binding Editor.CanUndo}" ToolTip.Tip="Undo (⌘Z)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="↩️" />
+                            <TextBlock Text="Undo" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Command="{Binding Editor.PerformRedoCommand}" IsEnabled="{Binding Editor.CanRedo}" ToolTip.Tip="Redo (⌘⇧Z)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="↪️" />
+                            <TextBlock Text="Redo" />
+                        </StackPanel>
+                    </Button>
+                    <Border Height="1" Background="#3a3a5a" Margin="4,8"/>
+                    <Button Classes="toolbar-btn" Command="{Binding Editor.ClearAnnotationsCommand}" ToolTip.Tip="Clear All" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="🗑️" />
+                            <TextBlock Text="Clear" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+        </Grid>
+    </Border>
+</Window>
