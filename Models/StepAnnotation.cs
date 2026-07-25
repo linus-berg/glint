@@ -9,33 +9,35 @@ public class StepAnnotation : AnnotationBase
 
     public override void Render(SKCanvas canvas)
     {
-        var radius = Math.Max(14f, StrokeWidth * 3f);
+        var radius = Math.Max(16f, StrokeWidth * 3.5f);
         
-        // Draw circle background
+        var luminance = 0.299 * Color.Red + 0.587 * Color.Green + 0.114 * Color.Blue;
+        var contrastColor = luminance > 160 ? SKColors.Black : SKColors.White;
+
+        // Draw circle background with drop shadow
+        using var shadowFilter = SKImageFilter.CreateDropShadow(0, 3f, 5f, 5f, new SKColor(0, 0, 0, 100));
         using var bgPaint = new SKPaint
         {
             Color = Color,
             Style = SKPaintStyle.Fill,
-            IsAntialias = true
+            IsAntialias = true,
+            ImageFilter = shadowFilter
         };
         canvas.DrawCircle(Position, radius, bgPaint);
 
-        var luminance = 0.299 * Color.Red + 0.587 * Color.Green + 0.114 * Color.Blue;
-        var contrastColor = luminance > 160 ? SKColors.Black : SKColors.White;
-
-        // Draw circle border (optional, but adds contrast)
+        // Draw an inner border for a crisp sticker/badge look
         using var borderPaint = new SKPaint
         {
-            Color = contrastColor,
+            Color = luminance > 240 ? new SKColor(0, 0, 0, 60) : SKColors.White.WithAlpha(220),
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 2f,
+            StrokeWidth = 2.5f,
             IsAntialias = true
         };
-        canvas.DrawCircle(Position, radius, borderPaint);
+        canvas.DrawCircle(Position, radius - 1.25f, borderPaint);
 
         // Draw text
         using var typeface = SKTypeface.FromFamilyName("Inter", SKFontStyle.Bold);
-        using var font = new SKFont(typeface, radius * 1.2f);
+        using var font = new SKFont(typeface, radius * 1.25f);
         
         using var textPaint = new SKPaint
         {
@@ -53,7 +55,7 @@ public class StepAnnotation : AnnotationBase
 
     public override bool HitTest(SKPoint point, float tolerance = 8f)
     {
-        var radius = Math.Max(14f, StrokeWidth * 3f);
+        var radius = Math.Max(16f, StrokeWidth * 3.5f);
         var dx = point.X - Position.X;
         var dy = point.Y - Position.Y;
         return (dx * dx + dy * dy) <= (radius * radius);
