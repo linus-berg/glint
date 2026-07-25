@@ -7,5 +7,7 @@ public enum ToolType
     Text,
     Blur,
     Rectangle,
-    Ellipse
+    Ellipse,
+    Step,
+    Highlighter
 }

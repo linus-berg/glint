@@ -32,9 +32,25 @@ jobs:
     - name: Rename binary
       run: mv ./publish/Glint ./publish/glint-${{ matrix.rid }}
 
+    - name: Install FPM (Linux)
+      if: matrix.rid == 'linux-x64'
+      run: sudo apt-get update && sudo apt-get install -y ruby rubygems && sudo gem install fpm
+
+    - name: Create RPM Package (Linux)
+      if: matrix.rid == 'linux-x64'
+      run: |
+        VERSION=${GITHUB_REF_NAME#v}
+        fpm -s dir -t rpm -n glint -v $VERSION \
+          --description "A fast, minimal screenshot annotation tool" \
+          --url "https://github.com/${{ github.repository }}" \
+          -p ./publish/glint-$VERSION-x86_64.rpm \
+          ./publish/glint-${{ matrix.rid }}=/usr/bin/glint
+
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2
       with:
-        files: ./publish/glint-${{ matrix.rid }}
+        files: |
+          ./publish/glint-${{ matrix.rid }}
+          ./publish/glint-*.rpm
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

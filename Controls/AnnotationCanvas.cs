@@ -259,6 +259,12 @@ public class AnnotationCanvas : Control
             case ToolType.Text:
                 StartOrEditText(imgPos);
                 break;
+            case ToolType.Highlighter:
+                StartHighlighter(imgPos);
+                break;
+            case ToolType.Step:
+                AddStep(imgPos);
+                break;
         }
 
         e.Handled = true;
@@ -292,6 +298,9 @@ public class AnnotationCanvas : Control
             case BlurAnnotation blur:
                 blur.End = imgPos;
                 break;
+            case HighlighterAnnotation highlighter:
+                highlighter.Path.LineTo(imgPos);
+                break;
         }
 
         InvalidateVisual();
@@ -313,6 +322,7 @@ public class AnnotationCanvas : Control
             RectangleAnnotation re => Math.Abs(re.End.X - re.Start.X) > 3 && Math.Abs(re.End.Y - re.Start.Y) > 3,
             EllipseAnnotation el => Math.Abs(el.End.X - el.Start.X) > 3 && Math.Abs(el.End.Y - el.Start.Y) > 3,
             BlurAnnotation bl => Math.Abs(bl.End.X - bl.Start.X) > 5 && Math.Abs(bl.End.Y - bl.Start.Y) > 5,
+            HighlighterAnnotation hl => !hl.Path.IsEmpty,
             _ => true
         };
 
@@ -339,6 +349,32 @@ public class AnnotationCanvas : Control
         annotation.Points.Add(pos);
         _currentAnnotation = annotation;
         _isDrawing = true;
+    }
+
+    private void StartHighlighter(SKPoint pos)
+    {
+        var annotation = new HighlighterAnnotation
+        {
+            Color = _editor!.CurrentColor,
+            StrokeWidth = _editor.CurrentStrokeWidth
+        };
+        annotation.Path.MoveTo(pos);
+        _currentAnnotation = annotation;
+        _isDrawing = true;
+    }
+
+    private void AddStep(SKPoint pos)
+    {
+        var number = _editor!.Annotations.OfType<StepAnnotation>().Count() + 1;
+        var step = new StepAnnotation
+        {
+            Position = pos,
+            Number = number,
+            Color = _editor.CurrentColor,
+            StrokeWidth = _editor.CurrentStrokeWidth
+        };
+        _editor.AddAnnotation(step);
+        InvalidateVisual();
     }
 
     private void StartArrow(SKPoint pos)

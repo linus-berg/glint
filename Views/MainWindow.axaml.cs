@@ -124,6 +124,16 @@ public partial class MainWindow : Window
                 _viewModel.Editor.SelectToolCommand.Execute("Ellipse");
                 e.Handled = true;
             }
+            else if (e.Key == Key.H)
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Highlighter");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.S) // wait, S is used for save (Ctrl+S) but standalone S is fine! Wait, actually S without modifier is fine.
+            {
+                _viewModel.Editor.SelectToolCommand.Execute("Step");
+                e.Handled = true;
+            }
         }
         else if (e.Key == Key.Escape)
         {

@@ -16,6 +16,8 @@ public static class ToolTypeConverters
     public static readonly IValueConverter IsBlur = new ToolTypeConverter(ToolType.Blur);
     public static readonly IValueConverter IsRectangle = new ToolTypeConverter(ToolType.Rectangle);
     public static readonly IValueConverter IsEllipse = new ToolTypeConverter(ToolType.Ellipse);
+    public static readonly IValueConverter IsStep = new ToolTypeConverter(ToolType.Step);
+    public static readonly IValueConverter IsHighlighter = new ToolTypeConverter(ToolType.Highlighter);
 }
 
 public class ToolTypeConverter : IValueConverter

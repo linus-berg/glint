@@ -13,48 +13,47 @@ public class TextAnnotation : AnnotationBase
     {
         if (string.IsNullOrEmpty(Text) && !IsEditing) return;
 
-        using var font = new SKFont(SKTypeface.FromFamilyName("Inter", SKFontStyle.Normal), FontSize);
+        using var typeface = SKTypeface.FromFamilyName("Inter", SKFontStyle.Bold);
+        using var font = new SKFont(typeface, FontSize);
+        
+        // Stylish outline and shadow
+        using var shadowPaint = new SKPaint
+        {
+            Color = new SKColor(0, 0, 0, 160),
+            IsAntialias = true,
+            Style = SKPaintStyle.StrokeAndFill,
+            StrokeWidth = Math.Max(2f, FontSize * 0.15f),
+            StrokeJoin = SKStrokeJoin.Round,
+            ImageFilter = SKImageFilter.CreateDropShadow(0, 3f, 4f, 4f, new SKColor(0, 0, 0, 120))
+        };
+
+        // Main text color
         using var paint = new SKPaint
         {
             Color = Color,
-            IsAntialias = true
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill
         };
 
         font.GetFontMetrics(out var metrics);
 
-        // Draw background for readability
-        var displayText = Text;
-        if (IsEditing && string.IsNullOrEmpty(displayText))
-            displayText = " "; // Use a space to measure height if empty
+        // Draw the text stroke/shadow first
+        canvas.DrawText(Text, Position.X, Position.Y, SKTextAlign.Left, font, shadowPaint);
 
-        float advance = font.MeasureText(displayText, out _, paint);
-        
-        using var bgPaint = new SKPaint
-        {
-            Color = new SKColor(0, 0, 0, 80),
-            Style = SKPaintStyle.Fill
-        };
-        
-        var bgRect = SKRect.Create(
-            Position.X - 4,
-            Position.Y + metrics.Ascent - 2,
-            advance + 8,
-            (metrics.Descent - metrics.Ascent) + 4
-        );
-        canvas.DrawRoundRect(bgRect, 3, 3, bgPaint);
-
-        canvas.DrawText(Text, Position.X, Position.Y, font, paint);
+        // Draw the main text color over it
+        canvas.DrawText(Text, Position.X, Position.Y, SKTextAlign.Left, font, paint);
 
         // Draw cursor if editing
         if (IsEditing)
         {
             float textAdvance = font.MeasureText(Text, out _, paint);
-            var cursorX = Position.X + textAdvance;
+            var cursorX = Position.X + textAdvance + 2;
             using var cursorPaint = new SKPaint
             {
                 Color = Color,
-                StrokeWidth = 2,
-                Style = SKPaintStyle.Stroke
+                StrokeWidth = Math.Max(2, FontSize * 0.1f),
+                Style = SKPaintStyle.Stroke,
+                StrokeCap = SKStrokeCap.Round
             };
             canvas.DrawLine(cursorX, Position.Y + metrics.Ascent, cursorX, Position.Y + metrics.Descent, cursorPaint);
         }
@@ -68,7 +67,7 @@ public class TextAnnotation : AnnotationBase
 
     public override SKRect GetBounds()
     {
-        using var font = new SKFont(SKTypeface.FromFamilyName("Inter", SKFontStyle.Normal), FontSize);
+        using var font = new SKFont(SKTypeface.FromFamilyName("Inter", SKFontStyle.Bold), FontSize);
         font.GetFontMetrics(out var metrics);
         
         var displayText = string.IsNullOrEmpty(Text) ? "A" : Text;

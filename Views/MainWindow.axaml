@@ -198,6 +198,13 @@
                             <TextBlock Text="Draw" />
                         </StackPanel>
                     </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsHighlighter}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Highlighter" ToolTip.Tip="Highlighter (H)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="🖍️" />
+                            <TextBlock Text="Highlight" />
+                        </StackPanel>
+                    </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsArrow}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Arrow" ToolTip.Tip="Arrow (A)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -222,8 +229,15 @@
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsText}}"
                             Command="{Binding Editor.SelectToolCommand}" CommandParameter="Text" ToolTip.Tip="Text (T)" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="🔤" />
+                            <TextBlock Text="📝" />
                             <TextBlock Text="Text" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsStep}}"
+                            Command="{Binding Editor.SelectToolCommand}" CommandParameter="Step" ToolTip.Tip="Step (S)" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="1️⃣" />
+                            <TextBlock Text="Step" />
                         </StackPanel>
                     </Button>
                     <Button Classes="toolbar-btn" Classes.active="{Binding Editor.CurrentTool, Converter={x:Static controls:ToolTypeConverters.IsBlur}}"
