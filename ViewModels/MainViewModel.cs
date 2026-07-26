@@ -23,49 +23,7 @@ public partial class MainViewModel : ViewModelBase
         Editor = new EditorViewModel();
     }
 
-    [RelayCommand]
-    private async Task CaptureScreenAsync()
-    {
-        IsCapturing = true;
-        try
-        {
-            var bitmap = await ScreenCaptureService.CaptureFullScreenAsync();
-            if (bitmap != null)
-            {
-                Editor.SetScreenshot(bitmap);
-            }
-            else
-            {
-                Editor.StatusText = "Screen capture failed. Check permissions.";
-            }
-        }
-        finally
-        {
-            IsCapturing = false;
-        }
-    }
 
-    [RelayCommand]
-    private async Task CaptureRegionAsync()
-    {
-        IsCapturing = true;
-        try
-        {
-            var bitmap = await ScreenCaptureService.CaptureRegionAsync();
-            if (bitmap != null)
-            {
-                Editor.SetScreenshot(bitmap);
-            }
-            else
-            {
-                Editor.StatusText = "Region capture failed or was cancelled.";
-            }
-        }
-        finally
-        {
-            IsCapturing = false;
-        }
-    }
 
     [RelayCommand]
     private async Task SaveScreenshotAsync()
