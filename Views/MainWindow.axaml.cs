@@ -210,42 +210,52 @@ public partial class MainWindow : Window
             var tempPath = Path.Combine(Path.GetTempPath(), $"glint_clipboard_{Guid.NewGuid()}.png");
             await File.WriteAllBytesAsync(tempPath, _viewModel.ClipboardData);
             
-            // OS-specific clipboard copy
-            if (OperatingSystem.IsMacOS())
+            try
             {
-                var process = new System.Diagnostics.Process
+                // OS-specific clipboard copy
+                if (OperatingSystem.IsMacOS())
                 {
-                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    var process = new System.Diagnostics.Process
                     {
-                        FileName = "osascript",
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-                process.StartInfo.ArgumentList.Add("-e");
-                process.StartInfo.ArgumentList.Add($"set the clipboard to (read (POSIX file \"{tempPath}\") as «class PNGf»)");
-                process.Start();
-                await process.WaitForExitAsync();
+                        StartInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "osascript",
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        }
+                    };
+                    process.StartInfo.ArgumentList.Add("-e");
+                    process.StartInfo.ArgumentList.Add($"set the clipboard to (read (POSIX file \"{tempPath}\") as «class PNGf»)");
+                    process.Start();
+                    await process.WaitForExitAsync();
+                }
+                else if (OperatingSystem.IsLinux())
+                {
+                    var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+                    var isWayland = !string.IsNullOrEmpty(waylandDisplay);
+                    
+                    var process = new System.Diagnostics.Process
+                    {
+                        StartInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "bash",
+                            Arguments = isWayland 
+                                ? $"-c \"wl-copy < '{tempPath}'\"" 
+                                : $"-c \"xclip -selection clipboard -t image/png -i '{tempPath}'\"",
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        }
+                    };
+                    process.Start();
+                    await process.WaitForExitAsync();
+                }
             }
-            else if (OperatingSystem.IsLinux())
+            finally
             {
-                var waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-                var isWayland = !string.IsNullOrEmpty(waylandDisplay);
-                
-                var process = new System.Diagnostics.Process
+                if (File.Exists(tempPath))
                 {
-                    StartInfo = new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = "bash",
-                        Arguments = isWayland 
-                            ? $"-c \"wl-copy < '{tempPath}'\"" 
-                            : $"-c \"xclip -selection clipboard -t image/png -i '{tempPath}'\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-                process.Start();
-                await process.WaitForExitAsync();
+                    try { File.Delete(tempPath); } catch { /* Ignore cleanup errors */ }
+                }
             }
             
             // Close the window after copying
