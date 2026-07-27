@@ -63,8 +63,10 @@ public partial class MainWindow : Window
 
         if (_viewModel == null) return;
 
+        bool hasCmdOrCtrl = e.KeyModifiers.HasFlag(KeyModifiers.Control) || e.KeyModifiers.HasFlag(KeyModifiers.Meta);
+
         // Ctrl/Cmd+Z = Undo, Ctrl/Cmd+Shift+Z = Redo
-        if (e.Key == Key.Z && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
+        if (e.Key == Key.Z && hasCmdOrCtrl)
         {
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
                 _viewModel.Editor.PerformRedoCommand.Execute(null);
@@ -73,7 +75,7 @@ public partial class MainWindow : Window
             e.Handled = true;
         }
         // Ctrl/Cmd+S = Save, Ctrl/Cmd+Shift+S = Save As
-        else if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
+        else if (e.Key == Key.S && hasCmdOrCtrl)
         {
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
                 _viewModel.SaveAsCommand.Execute(null);
@@ -82,14 +84,14 @@ public partial class MainWindow : Window
             e.Handled = true;
         }
         // Ctrl/Cmd+C = Copy
-        else if (e.Key == Key.C && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
+        else if (e.Key == Key.C && hasCmdOrCtrl)
         {
             _viewModel.CopyToClipboardCommand.Execute(null);
             e.Handled = true;
         }
 
         // Ctrl/Cmd+O = Open file
-        else if (e.Key == Key.O && e.KeyModifiers.HasFlag(KeyModifiers.Meta))
+        else if (e.Key == Key.O && hasCmdOrCtrl)
         {
             _viewModel.OpenFileCommand.Execute(null);
             e.Handled = true;
@@ -240,8 +242,8 @@ public partial class MainWindow : Window
                         {
                             FileName = "bash",
                             Arguments = isWayland 
-                                ? $"-c \"wl-copy < '{tempPath}'\"" 
-                                : $"-c \"xclip -selection clipboard -t image/png -i '{tempPath}'\"",
+                                ? $"-c \"wl-copy -t image/png < '{tempPath}' || xclip -selection clipboard -t image/png -i '{tempPath}'\"" 
+                                : $"-c \"xclip -selection clipboard -t image/png -i '{tempPath}' || wl-copy -t image/png < '{tempPath}'\"",
                             UseShellExecute = false,
                             CreateNoWindow = true
                         }
