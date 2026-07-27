@@ -524,7 +524,9 @@ public class AnnotationCanvas : Control
         _currentAnnotation = new BlurAnnotation
         {
             Start = pos,
-            End = pos
+            End = pos,
+            Color = _editor!.CurrentColor,
+            StrokeWidth = _editor.CurrentStrokeWidth
         };
         _isDrawing = true;
     }

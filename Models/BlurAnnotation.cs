@@ -61,9 +61,12 @@ public class BlurAnnotation : AnnotationBase
         using var surface = SKSurface.Create(new SKImageInfo(clipRectI.Width, clipRectI.Height));
         var canvas = surface.Canvas;
         
+        // Scale the blur radius based on the current stroke width, similar to Redaction
+        var scaledBlurRadius = Math.Max(2f, StrokeWidth * 2.5f);
+
         using var paint = new SKPaint
         {
-            ImageFilter = SKImageFilter.CreateBlur(BlurRadius, BlurRadius, SKShaderTileMode.Clamp)
+            ImageFilter = SKImageFilter.CreateBlur(scaledBlurRadius, scaledBlurRadius, SKShaderTileMode.Clamp)
         };
         
         canvas.DrawBitmap(subset, 0, 0, SKSamplingOptions.Default, paint);
