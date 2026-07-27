@@ -20,6 +20,8 @@ public class AnnotationCanvas : Control
     private EditorViewModel? _editor;
     private WriteableBitmap? _renderTarget;
     private SKBitmap? _blurredScreenshot;
+    private SKBitmap? _cachedBaseBitmap;
+    private bool _baseBitmapDirty = true;
 
     // Drawing state
     private bool _isDrawing;
@@ -87,6 +89,9 @@ public class AnnotationCanvas : Control
             _blurredScreenshot = null;
             _renderTarget?.Dispose();
             _renderTarget = null;
+            _cachedBaseBitmap?.Dispose();
+            _cachedBaseBitmap = null;
+            _baseBitmapDirty = true;
             FitToView();
             InvalidateVisual();
         }
@@ -94,6 +99,7 @@ public class AnnotationCanvas : Control
 
     private void OnInvalidateCanvas()
     {
+        _baseBitmapDirty = true;
         Avalonia.Threading.Dispatcher.UIThread.Post(InvalidateVisual);
     }
 
@@ -168,47 +174,65 @@ public class AnnotationCanvas : Control
             // Draw screenshot
             canvas.Clear(SKColors.Transparent);
 
-            // Create a copy for layer rendering
-            using var workBitmap = screenshot.Copy();
-            using var workCanvas = new SKCanvas(workBitmap);
+            // Rebuild the cached base bitmap if necessary
+            if (_baseBitmapDirty || _cachedBaseBitmap == null || _cachedBaseBitmap.Width != width || _cachedBaseBitmap.Height != height)
+            {
+                _cachedBaseBitmap?.Dispose();
+                _cachedBaseBitmap = screenshot.Copy();
+                using var baseCanvas = new SKCanvas(_cachedBaseBitmap);
 
-            // Apply all committed annotations in chronological order
-            foreach (var annotation in _editor.Annotations)
-            {
-                if (annotation is BlurAnnotation blur)
+                // Apply all committed annotations in chronological order
+                foreach (var annotation in _editor.Annotations)
                 {
-                    blur.ApplyBlur(workBitmap);
+                    if (annotation is BlurAnnotation blur)
+                    {
+                        blur.ApplyBlur(_cachedBaseBitmap);
+                    }
+                    else if (annotation is LoupeAnnotation loupe)
+                    {
+                        loupe.ApplyLoupe(_cachedBaseBitmap);
+                    }
+                    else if (annotation is RedactionAnnotation redaction)
+                    {
+                        redaction.ApplyRedaction(_cachedBaseBitmap);
+                    }
+                    else
+                    {
+                        annotation.Render(baseCanvas);
+                    }
                 }
-                else if (annotation is LoupeAnnotation loupe)
-                {
-                    loupe.ApplyLoupe(workBitmap);
-                }
-                else if (annotation is RedactionAnnotation redaction)
-                {
-                    redaction.ApplyRedaction(workBitmap);
-                }
-                else
-                {
-                    annotation.Render(workCanvas);
-                }
-            }
-
-            // Apply live blur effect if currently dragging a blur
-            if (_currentAnnotation is BlurAnnotation currentBlur)
-            {
-                currentBlur.ApplyBlur(workBitmap);
-            }
-            else if (_currentAnnotation is LoupeAnnotation currentLoupe)
-            {
-                currentLoupe.ApplyLoupe(workBitmap);
-            }
-            else if (_currentAnnotation is RedactionAnnotation currentRedaction)
-            {
-                currentRedaction.ApplyRedaction(workBitmap);
+                _baseBitmapDirty = false;
             }
 
-            // Draw the fully composited layered image to the screen
-            canvas.DrawBitmap(workBitmap, 0, 0);
+            // If we are currently drawing an annotation that modifies underlying pixels,
+            // we must make a temporary copy of the base bitmap for this frame.
+            bool needsTempCopy = _currentAnnotation is BlurAnnotation || 
+                                 _currentAnnotation is LoupeAnnotation || 
+                                 _currentAnnotation is RedactionAnnotation;
+
+            if (needsTempCopy)
+            {
+                using var tempBitmap = _cachedBaseBitmap.Copy();
+                
+                if (_currentAnnotation is BlurAnnotation currentBlur)
+                {
+                    currentBlur.ApplyBlur(tempBitmap);
+                }
+                else if (_currentAnnotation is LoupeAnnotation currentLoupe)
+                {
+                    currentLoupe.ApplyLoupe(tempBitmap);
+                }
+                else if (_currentAnnotation is RedactionAnnotation currentRedaction)
+                {
+                    currentRedaction.ApplyRedaction(tempBitmap);
+                }
+                
+                canvas.DrawBitmap(tempBitmap, 0, 0);
+            }
+            else
+            {
+                canvas.DrawBitmap(_cachedBaseBitmap, 0, 0);
+            }
 
             // Draw the live annotation (stroke, shape, or blur UI guide) on top
             if (_currentAnnotation != null)
